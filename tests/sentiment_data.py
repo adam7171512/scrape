@@ -3,20 +3,20 @@ from enum import Enum
 
 
 class SentimentRating(Enum):
-    VERY_NEGATIVE = 1
-    NEGATIVE = 2
-    NEUTRAL = 3
-    POSITIVE = 4
-    VERY_POSITIVE = 5
+    VERY_NEGATIVE = "very_negative"
+    NEGATIVE = "negative"
+    NEUTRAL = "neutral"
+    POSITIVE = "positive"
+    VERY_POSITIVE = "very_positive"
+
 
 def read_sentiment_data(sentiment_rating: SentimentRating) -> list[str]:
     """
-    Return list of strings with particular sentiment type for test purposes
+    Return list of strings of particular sentiment type for test purposes
     """
-    # Determine the path to the file
-    current_dir = os.path.dirname(__file__)  # Gets the directory of the current .py file
-    file_path = os.path.join(current_dir, 'resources', 'sentiment_data', 'assets', f'{sentiment_type}.txt')
+    base_dir = os.path.dirname(os.path.dirname(__file__))
+    file_path = os.path.join(base_dir, 'tests', 'resources', 'sentiment_data', 'assets', f'{sentiment_rating.value}.txt')
 
     # Read and return the file contents
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         return file.readlines()
