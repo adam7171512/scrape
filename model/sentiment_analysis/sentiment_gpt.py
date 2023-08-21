@@ -1,5 +1,3 @@
-from pymongo import MongoClient
-
 from gpt_tools.tools import GptContact
 from model.sentiment_analysis.core import ISentimentRater, GptRating
 
