@@ -1,7 +1,8 @@
 import datetime
 
+from config_data_provider import get_yt_api_keys
 from model.youtube.core import YtVideo, YtVideoStats
-from model.youtube.yt_top_vid_finder import YtFinder, get_yt_api_keys
+from model.youtube.yt_top_vid_finder import YtFinder
 import pytest
 
 
