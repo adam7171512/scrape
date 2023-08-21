@@ -3,9 +3,10 @@ import re
 
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
+from transformers import (AutoConfig, AutoModelForSequenceClassification,
+                          AutoTokenizer)
 
-from model.yt_tools.yt_top_vid_finder import YtVideo
+from model.youtube.yt_top_vid_finder import YtVideo
 
 MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
 tokenizer = AutoTokenizer.from_pretrained(MODEL)

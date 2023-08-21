@@ -4,13 +4,19 @@ import re
 
 from googleapiclient.discovery import build
 
-from model.data.stats import YtVideoStats
-from model.data.yt_video import YtVideo
+from model.youtube.core import YtVideo, YtVideoStats
+
+
+def get_api_keys() -> list[str]:
+    import toml
+    config = toml.load("../../config.toml")
+    api_keys = config["api"]["yt_data_api_keys"]
+    return api_keys
 
 
 class YtFinder:
-    api_service_name = "youtube"
-    api_version = "v3"
+    API_SERViCE_NAME = "youtube"
+    API_VERSION = "v3"
 
     def __init__(self, api_keys: list[str]):
         self.api_keys = api_keys
@@ -33,8 +39,8 @@ class YtFinder:
         search_to = date_start + delta
 
         self.youtube = build(
-            self.api_service_name,
-            self.api_version,
+            self.API_SERViCE_NAME,
+            self.API_VERSION,
             developerKey=self.api_keys[self.api_key_index],
         )
 
@@ -81,8 +87,8 @@ class YtFinder:
                     raise e
                 self.api_key_index += 1
                 self.youtube = build(
-                    self.api_service_name,
-                    self.api_version,
+                    self.API_SERViCE_NAME,
+                    self.API_VERSION,
                     developerKey=self.api_keys[self.api_key_index],
                 )
                 continue
@@ -108,11 +114,12 @@ class YtFinder:
             total_minutes = hours * 60 + minutes + seconds / 60.0
             return total_minutes
 
-        self.youtube = build(
-            self.api_service_name,
-            self.api_version,
-            developerKey=self.api_keys[self.api_key_index],
-        )
+        if self.youtube is None:
+            self.youtube = build(
+                self.API_SERViCE_NAME,
+                self.API_VERSION,
+                developerKey=self.api_keys[self.api_key_index],
+            )
 
         try:
             request = self.youtube.videos().list(
@@ -144,8 +151,8 @@ class YtFinder:
 
             self.api_key_index += 1
             self.youtube = build(
-                self.api_service_name,
-                self.api_version,
+                self.API_SERViCE_NAME,
+                self.API_VERSION,
                 developerKey=self.api_keys[self.api_key_index],
             )
             return self.scrape_video_stats(video)

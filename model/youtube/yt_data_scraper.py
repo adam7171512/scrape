@@ -2,8 +2,8 @@ from datetime import datetime
 
 from pymongo import MongoClient
 
-from .yt_mongo_repository import YtMongoRepository
-from .yt_top_vid_finder import YtFinder
+from model.youtube.yt_mongo_repository import YtMongoRepository
+from model.youtube.yt_top_vid_finder import YtFinder
 
 
 class YtScraper:

@@ -17,7 +17,6 @@ def read_sentiment_data(sentiment_rating: SentimentRatingType) -> list[str]:
     base_dir = os.path.dirname(os.path.dirname(__file__))
     file_path = os.path.join(
         base_dir,
-        "tests",
         "resources",
         "sentiment_data",
         "assets",

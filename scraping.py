@@ -3,7 +3,7 @@ from datetime import datetime
 import toml
 from pymongo import MongoClient
 
-from model.yt_tools.yt_data_scraper import YtScraper
+from model.youtube.yt_data_scraper import YtScraper
 
 client = MongoClient("mongodb://localhost:27017")
 

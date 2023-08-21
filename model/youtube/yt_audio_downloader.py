@@ -3,7 +3,7 @@ import os
 
 import yt_dlp as yt
 
-from model.data.yt_video import YtVideo
+from model.youtube.core import YtVideo
 
 
 class YtAudioDownloader:

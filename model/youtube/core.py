@@ -2,7 +2,19 @@ import datetime
 
 from pydantic import BaseModel
 
-from model.data.stats import YtVideoStats
+
+class YoutubeVideoSentimentRating(BaseModel):
+    model: str
+    score_title: float
+    score_transcript: float | None = None
+
+
+class YtVideoStats(BaseModel):
+    views: int = None
+    comments: int = None
+    likes: int = None
+    length_minutes: float = None
+    sentiment_ratings: list[YoutubeVideoSentimentRating] = []
 
 
 class YtVideo(BaseModel):

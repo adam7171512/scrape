@@ -1,9 +1,14 @@
 import numpy as np
 from scipy.special import softmax
-from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
+from transformers import (AutoConfig, AutoModelForSequenceClassification,
+                          AutoTokenizer)
 
-from model.data.sentiment import ISentimentRater, SplitScoreRating
+from model.sentiment_analysis.core import SplitScoreRating, ISentimentRater
 
+"""
+Warning! FinBert is likely bad option for rating youtube-title-like text sentiment
+rating, as it was trained on more official financial text
+"""
 
 class FinbertSentimentRater(ISentimentRater):
     MODEL = f"ProsusAI/finbert"
@@ -26,6 +31,4 @@ class FinbertSentimentRater(ISentimentRater):
             neutral=float(rank_scores[2]),
             positive=float(rank_scores[0]),
         )
-        print(text)
-        print(sentiment_rating)
         return sentiment_rating

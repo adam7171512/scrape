@@ -1,8 +1,8 @@
 from typing import Protocol
 
-from model.data.yt_video import YtVideo
-from model.yt_tools.whisper_transcript import WhisperTranscript
-from model.yt_tools.yt_audio_downloader import YtAudioDownloader
+from model.youtube.core import YtVideo
+from model.youtube.whisper_transcript import WhisperTranscript
+from model.youtube.yt_audio_downloader import YtAudioDownloader
 
 
 class IYtTranscriptScraper(Protocol):

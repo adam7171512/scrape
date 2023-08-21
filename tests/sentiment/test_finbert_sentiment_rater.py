@@ -1,8 +1,8 @@
 import pytest
 
-from model.data.sentiment import ISentimentRater, SentimentRating
+from model.sentiment_analysis.core import ISentimentRater, SentimentRating
 from model.sentiment_analysis.sentiment_finbert import FinbertSentimentRater
-from tests.sentiment_data import SentimentRatingType, read_sentiment_data
+from tests.resources.sentiment_data import SentimentRatingType, read_sentiment_data
 
 """
 FinBert sentiment model doesnt do well with input of casual yt-title like type, thus I left only positive/negative tests

@@ -1,12 +1,10 @@
-from model.data.yt_video import YtVideo
-from model.yt_tools.whisper_transcript import WhisperTranscript
-from model.yt_tools.yt_audio_downloader import YtAudioDownloader
-from model.yt_tools.yt_mongo_repository import YtMongoRepository
-from model.yt_tools.yt_transcript_scraper import (
-    IYtTranscriptScraper,
-    YtWhisperTranscriptScraper,
-    YtYtDlpTranscriptScraper,
-)
+from model.youtube.core import YtVideo
+from model.youtube.whisper_transcript import WhisperTranscript
+from model.youtube.yt_audio_downloader import YtAudioDownloader
+from model.youtube.yt_mongo_repository import YtMongoRepository
+from model.youtube.yt_transcript_scraper import (IYtTranscriptScraper,
+                                                 YtWhisperTranscriptScraper,
+                                                 YtYtDlpTranscriptScraper)
 
 
 class TranscriptFiller:

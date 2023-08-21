@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pymongo.collection import Collection
 
-from model.data.yt_video import YtVideo
+from model.youtube.core import YtVideo
 
 
 class YtMongoRepository:

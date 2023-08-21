@@ -2,13 +2,10 @@ import configparser
 
 import pytest
 
-from model.data.sentiment import ISentimentRater, SentimentRating
+from model.sentiment_analysis.core import ISentimentRater, SentimentRating
 from model.sentiment_analysis.sentiment_gpt import GptSentimentRater
 from tests.resources.sentiment_data import SentimentRatingType, read_sentiment_data
 from gpt_tools.tools import get_api_key
-import os
-config = configparser.ConfigParser()
-config.read("../../../../config.ini")
 
 
 @pytest.fixture(scope="module")
