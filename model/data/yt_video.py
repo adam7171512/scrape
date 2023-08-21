@@ -1,6 +1,9 @@
 import datetime
+
 from pydantic import BaseModel
+
 from model.data.stats import YtVideoStats
+
 
 class YtVideo(BaseModel):
     video_id: str
@@ -20,7 +23,6 @@ class YtVideo(BaseModel):
             date=d.get("snippet").get("publishedAt"),
             description=d.get("snippet").get("description"),
         )
-
 
     @property
     def url(self):

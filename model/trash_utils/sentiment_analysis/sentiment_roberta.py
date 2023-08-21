@@ -1,8 +1,8 @@
 from typing import Protocol
-from transformers import AutoModelForSequenceClassification
-from transformers import AutoTokenizer, AutoConfig
+
 import numpy as np
 from scipy.special import softmax
+from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
 
 from model.data.sentiment import RobertaSentiment
 from model.yt_tools.yt_mongo_repository import YtMongoRepository

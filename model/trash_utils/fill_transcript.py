@@ -1,11 +1,9 @@
 import glob
+import re
 
-from transformers import AutoModelForSequenceClassification
-from transformers import AutoTokenizer, AutoConfig
 from pymongo import MongoClient
 from pymongo.collection import Collection
-
-import re
+from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
 
 from model.yt_tools.yt_top_vid_finder import YtVideo
 
@@ -19,10 +17,9 @@ db = client["yt_new"]
 collection = db["bitcoin"]
 
 
-
 # video id is placed inside the file name in brackes [] , for example rewrew[dasdasad].txt  , id is dasdasad
 def get_vid_id(filepath: str) -> str:
-    return re.search(r'\[(.*?)\]', filepath).group(1)
+    return re.search(r"\[(.*?)\]", filepath).group(1)
 
 
 def get_ids_from_folder(folder: str) -> dict:
@@ -33,7 +30,6 @@ def get_ids_from_folder(folder: str) -> dict:
 
 
 def fill_missing_transcripts(collection: Collection, transcripts_folder: str):
-
     ids = get_ids_from_folder(transcripts_folder)
 
     for id_ in ids.keys():
@@ -53,11 +49,14 @@ def fill_missing_transcripts(collection: Collection, transcripts_folder: str):
 def get_vids_without_transcript(collection: Collection):
     ids = collection.find({"transcript": None})
     import pandas as pd
+
     df = pd.DataFrame(ids)
     df.to_csv("videos_without_transcript.csv")
 
 
-def transcript_transplants_between_collections(donor_collection, recipient_collection) -> list[str]:
+def transcript_transplants_between_collections(
+    donor_collection, recipient_collection
+) -> list[str]:
     for vid in recipient_collection.find({"transcript": None}):
         obj_id = vid["_id"]
         vid = YtVideo(**vid)

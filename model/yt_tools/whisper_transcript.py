@@ -4,7 +4,6 @@ import whisper
 
 
 class WhisperTranscript:
-
     def __init__(self, model: str = "base"):
         self.model = whisper.load_model(model)
 

@@ -1,12 +1,14 @@
 from datetime import datetime
 
-from pymongo import MongoClient
-from model.yt_tools.yt_data_scraper import YtScraper
 import toml
+from pymongo import MongoClient
+
+from model.yt_tools.yt_data_scraper import YtScraper
+
 client = MongoClient("mongodb://localhost:27017")
 
-config = toml.load('config.toml')
-API_KEYS = config['api']['yt_data_api_keys']
+config = toml.load("config.toml")
+API_KEYS = config["api"]["yt_data_api_keys"]
 
 yt_scraper = YtScraper(db_client=client, api_keys=API_KEYS)
 
@@ -20,5 +22,5 @@ yt_scraper.scrape(
     max_results_per_time_delta=5,
     language="en",
     stats_lower_limit=1000,
-    length_minutes_lower_limit=4
+    length_minutes_lower_limit=4,
 )

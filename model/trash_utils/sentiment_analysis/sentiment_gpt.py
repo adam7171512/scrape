@@ -7,24 +7,29 @@ db = client["youtube"]
 collection = db["videos_weekly_cryptocurrency"]
 
 videos = collection.find()
+
+
 def get_title_sentiment(text):
     try:
-        rating = (GptContact.get_chat_completion(
-        system_message=f"Rate the headline sentiment. Use values between -100 and 100 \n"
-                       f"### Guidelines for rating: (but you can use value in between too) :\n"
-                       f"-100 : very negative\n"
-                       f"-50: negative\n"
-                       f"0: neutral\n"
-                       f"50: positive\n"
-                       f"100: very positive\n"
-                       f"### Required answer format:\n"
-                       f"sentiment_rating = <rating>"
-                        , user_message=text, max_tokens=15, temperature=0, model="gpt-3.5-turbo"
-    ))
+        rating = GptContact.get_chat_completion(
+            system_message=f"Rate the headline sentiment. Use values between -100 and 100 \n"
+            f"### Guidelines for rating: (but you can use value in between too) :\n"
+            f"-100 : very negative\n"
+            f"-50: negative\n"
+            f"0: neutral\n"
+            f"50: positive\n"
+            f"100: very positive\n"
+            f"### Required answer format:\n"
+            f"sentiment_rating = <rating>",
+            user_message=text,
+            max_tokens=15,
+            temperature=0,
+            model="gpt-3.5-turbo",
+        )
         str_rating = ""
         # look for number in the response
         for char in rating:
-            if (char.isdigit() or char == "-"):
+            if char.isdigit() or char == "-":
                 str_rating += char
 
         rating = int(str_rating)
