@@ -1,6 +1,7 @@
 import datetime
 import logging
 import re
+from typing import Generator
 
 from googleapiclient.discovery import build
 
@@ -32,7 +33,10 @@ class YtFinder:
         time_delta: int,
         max_results_per_time_delta: int = 10,
         language: str = None,
-    ):
+    ) -> Generator[list[YtVideo], None, None]:
+        """
+        Returns a generator of lists of videos, where each list is the top videos for a given time delta
+        """
         delta = datetime.timedelta(days=time_delta)
 
         search_from = date_start
@@ -44,7 +48,11 @@ class YtFinder:
             developerKey=self.api_keys[self.api_key_index],
         )
 
-        while search_to <= date_end:
+        while search_from <= date_end:
+
+            if search_to > date_end:
+                search_to = date_end
+
             parameters = {
                 "part": "snippet",
                 "maxResults": max_results_per_time_delta,
@@ -97,7 +105,7 @@ class YtFinder:
             search_to += delta
 
     def scrape_video_stats(self, video: YtVideo):
-        print(f"api key : {self.api_key_index}")
+        # Todo: consider changing param to video_id
 
         video_stats = None
 
@@ -197,32 +205,3 @@ class YtFinder:
                     vids.append(yt_video)
 
             yield vids
-
-
-#
-# import pymongo
-#
-# # client = pymongo.MongoClient("mongodb://localhost:27017/")
-# # db = client["yt_new"]
-# # collection = db["bitcoin"]
-#
-#
-# scraper = YtFinder(api_keys=API_KEYS)
-#
-# vids = scraper.scrape_top_videos_with_stats(
-#     topic="bitcoin",
-#     date_start=datetime.date(2019, 8, 16),
-#     date_end=datetime.date(2019, 12, 31),
-#     time_delta=7,
-#     max_results_per_time_delta=10,
-#     stats_lower_limit=5000,
-#     length_minutes_lower_limit=5,
-#     language="en"
-# )
-# #
-# # for vid in vids:
-# #     collection.insert_many([vid.model_dump() for vid in vid])
-#
-# for vid in vids:
-#     print(vid)
-#
