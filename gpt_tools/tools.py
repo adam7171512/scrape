@@ -8,7 +8,7 @@ import requests
 import tiktoken
 
 config = configparser.ConfigParser()
-config.read("config.ini")
+config.read("../../config.ini")
 
 OPEN_AI_MODERATION_URL = "https://api.openai.com/v1/moderations"
 openai.api_key = config.get("api", "OPEN_AI_KEY")
