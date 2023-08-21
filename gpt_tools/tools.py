@@ -7,12 +7,7 @@ import requests
 import tiktoken
 
 
-def get_api_key() -> str:
-    import configparser
-    import os
-    config = configparser.ConfigParser()
-    config.read(os.path.join("../../config.ini"))
-    return config['api']['OPEN_AI_KEY']
+
 
 
 class Role(Enum):

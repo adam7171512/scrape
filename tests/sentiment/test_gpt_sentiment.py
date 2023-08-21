@@ -5,12 +5,12 @@ import pytest
 from model.sentiment_analysis.core import ISentimentRater, SentimentRating
 from model.sentiment_analysis.sentiment_gpt import GptSentimentRater
 from tests.resources.sentiment_data import SentimentRatingType, read_sentiment_data
-from gpt_tools.tools import get_api_key
+from config_data_provider import get_open_ai_api_key
 
 
 @pytest.fixture(scope="module")
 def sentiment_rater() -> ISentimentRater:
-    return GptSentimentRater(get_api_key())
+    return GptSentimentRater(get_open_ai_api_key())
 
 
 def test_very_negative_string_should_receive_very_negative_score(sentiment_rater):

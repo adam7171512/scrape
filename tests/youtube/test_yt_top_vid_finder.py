@@ -1,13 +1,13 @@
 import datetime
 
 from model.youtube.core import YtVideo, YtVideoStats
-from model.youtube.yt_top_vid_finder import YtFinder, get_api_keys
+from model.youtube.yt_top_vid_finder import YtFinder, get_yt_api_keys
 import pytest
 
 
 @pytest.fixture(scope="module")
 def yt_finder() -> YtFinder:
-    return YtFinder(get_api_keys())
+    return YtFinder(get_yt_api_keys())
 
 
 def test_scrape_top_videos_basic_info_when_max_results_10_should_yield_10_element_list(yt_finder):
