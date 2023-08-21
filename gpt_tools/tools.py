@@ -1,4 +1,3 @@
-import configparser
 import json
 from enum import Enum
 from typing import Dict, List
@@ -7,17 +6,13 @@ import openai
 import requests
 import tiktoken
 
-config = configparser.ConfigParser()
-config.read("../../config.ini")
 
-OPEN_AI_MODERATION_URL = "https://api.openai.com/v1/moderations"
-openai.api_key = config.get("api", "OPEN_AI_KEY")
-
-token_limits = {"gpt-3.5-turbo": 4096, "gpt-4": 8000}
-
-
-def str_token_count(s: str) -> int:
-    return len(tiktoken.get_encoding("cl100k_base").encode(s))
+def get_api_key() -> str:
+    import configparser
+    import os
+    config = configparser.ConfigParser()
+    config.read(os.path.join("../../config.ini"))
+    return config['api']['OPEN_AI_KEY']
 
 
 class Role(Enum):
@@ -27,11 +22,20 @@ class Role(Enum):
 
 
 class GptContact:
-    def __init__(self, model: str = "gpt-3.5-turbo"):
+    OPEN_AI_MODERATION_URL = "https://api.openai.com/v1/moderations"
+    token_limits = {
+        "gpt-3.5-turbo": 4096,
+        "gpt-4": 8000,
+    }
+
+    def __init__(self, api_key: str, model: str = "gpt-3.5-turbo"):
         self._system_message = {"role": "system", "content": ""}
         self.conversation = []
         self.model = model
-        self.model_token_limit = token_limits.get(self.model, "2048")
+        self.model_token_limit = self.token_limits.get(self.model, "2048")
+        self.api_key = api_key
+
+        openai.api_key = self.api_key
 
     @property
     def system_message(self) -> str:
@@ -54,11 +58,11 @@ class GptContact:
         return self
 
     def get_completion(
-        self,
-        temperature: float = 1,
-        max_response_tokens=1000,
-        chat_history_token_limit=None,
-        chat_history_recent_messages_limit=None,
+            self,
+            temperature: float = 1,
+            max_response_tokens=1000,
+            chat_history_token_limit=None,
+            chat_history_recent_messages_limit=None,
     ):
         if not self.conversation:
             raise ValueError("No messages to send!")
@@ -66,10 +70,10 @@ class GptContact:
         messages = []
 
         sys_message_tokens = (
-            str_token_count(str(self._system_message)) if self.system_message else 0
+            self.count_tokens(str(self._system_message)) if self.system_message else 0
         )
         chat_history_tokens_available = (
-            self.model_token_limit - sys_message_tokens - max_response_tokens
+                self.model_token_limit - sys_message_tokens - max_response_tokens
         )
 
         if chat_history_token_limit:
@@ -79,10 +83,10 @@ class GptContact:
 
         messages_appended = 0
         for message in reversed(self.conversation):
-            message_token_count = str_token_count(str(message))
+            message_token_count = self.count_tokens(str(message))
             if (
-                chat_history_recent_messages_limit
-                and messages_appended >= chat_history_recent_messages_limit
+                    chat_history_recent_messages_limit
+                    and messages_appended >= chat_history_recent_messages_limit
             ):
                 break
             elif chat_history_tokens_available < message_token_count:
@@ -100,10 +104,12 @@ class GptContact:
         self.conversation.append({"role": "assistant", "content": answer})
         return answer
 
-    @staticmethod
-    def get_moderation_info(content: str):
+    def count_tokens(self, text: str) -> int:
+        return len(tiktoken.get_encoding("cl100k_base").encode(text))
+
+    def get_moderation_info(self, content: str):
         response = requests.post(
-            OPEN_AI_MODERATION_URL,
+            self.OPEN_AI_MODERATION_URL,
             headers={
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + openai.api_key,
@@ -114,10 +120,10 @@ class GptContact:
 
     @staticmethod
     def get_chat_completion_for_formatted_input(
-        messages: List[Dict],
-        model: str = "gpt-3.5-turbo",
-        temperature: float = 1,
-        max_tokens=1999,
+            messages: List[Dict],
+            model: str = "gpt-3.5-turbo",
+            temperature: float = 1,
+            max_tokens=1999,
     ):
         response = openai.ChatCompletion.create(
             model=model,
@@ -129,11 +135,11 @@ class GptContact:
 
     @staticmethod
     def get_chat_completion(
-        system_message: str,
-        user_message: str,
-        model: str = "gpt-3.5-turbo",
-        temperature: float = 1,
-        max_tokens=1999,
+            system_message: str,
+            user_message: str,
+            model: str = "gpt-3.5-turbo",
+            temperature: float = 1,
+            max_tokens=1999,
     ):
         inp = (
             ApiInputBuilder()
@@ -147,10 +153,10 @@ class GptContact:
 
     @staticmethod
     def get_insertion_completion(
-        prefix_message: str,
-        suffix_message: str = "",
-        model: str = "gpt-3.5-turbo",
-        max_tokens=20,
+            prefix_message: str,
+            suffix_message: str = "",
+            model: str = "gpt-3.5-turbo",
+            max_tokens=20,
     ):
         return (
             openai.Completion.create(
@@ -167,9 +173,9 @@ class GptContact:
 
     @staticmethod
     def get_edit_completion(
-        message: str,
-        instruction: str,
-        model: str = "text-davinci-edit-001",
+            message: str,
+            instruction: str,
+            model: str = "text-davinci-edit-001",
     ):
         return (
             openai.Edit.create(

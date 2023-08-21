@@ -20,8 +20,8 @@ class GptSentimentRater(ISentimentRater):
     """
     RETRY_LIMIT = 3
 
-    def __init__(self):
-        self.gpt = GptContact(model=self.MODEL)
+    def __init__(self, api_key: str):
+        self.gpt = GptContact(api_key, self.MODEL)
         self.fail_count = 0
 
     def rate(self, text: str) -> GptRating:
