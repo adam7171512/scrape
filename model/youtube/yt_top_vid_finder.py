@@ -8,31 +8,27 @@ from googleapiclient.discovery import build
 from model.youtube.core import YtVideo, YtVideoStats
 
 
-def get_api_keys() -> list[str]:
-    import toml
-    config = toml.load("../../config.toml")
-    api_keys = config["api"]["yt_data_api_keys"]
-    return api_keys
-
-
 class YtFinder:
+    """
+    Todo: remove the key handling responsibility from this class
+    """
     API_SERViCE_NAME = "youtube"
     API_VERSION = "v3"
 
     def __init__(self, api_keys: list[str]):
-        self.api_keys = api_keys
-        self.api_key_index = 0
+        self._api_keys = api_keys
+        self._api_key_index = 0
 
-        self.youtube = None
+        self._youtube = None
 
     def scrape_top_videos_basic_info(
-        self,
-        topic: str,
-        date_start: datetime.date,
-        date_end: datetime.date,
-        time_delta: int,
-        max_results_per_time_delta: int = 10,
-        language: str = None,
+            self,
+            topic: str,
+            date_start: datetime.date,
+            date_end: datetime.date,
+            time_delta: int,
+            max_results_per_time_delta: int = 10,
+            language: str = None,
     ) -> Generator[list[YtVideo], None, None]:
         """
         Returns a generator of lists of videos, where each list is the top videos for a given time delta
@@ -42,11 +38,12 @@ class YtFinder:
         search_from = date_start
         search_to = date_start + delta
 
-        self.youtube = build(
-            self.API_SERViCE_NAME,
-            self.API_VERSION,
-            developerKey=self.api_keys[self.api_key_index],
-        )
+        if self._youtube is None:
+            self._youtube = build(
+                self.API_SERViCE_NAME,
+                self.API_VERSION,
+                developerKey=self._api_keys[self._api_key_index],
+            )
 
         while search_from <= date_end:
 
@@ -67,7 +64,7 @@ class YtFinder:
                 parameters["relevanceLanguage"] = language
 
             try:
-                request = self.youtube.search().list(
+                request = self._youtube.search().list(
                     **parameters,
                 )
                 response = request.execute()
@@ -85,7 +82,7 @@ class YtFinder:
                 # if we hit the quota limit, switch to the next api key
                 # if we run out of api keys, throw the exception, log progress and exit
 
-                if self.api_key_index >= len(self.api_keys) - 1:
+                if self._api_key_index >= len(self._api_keys) - 1:
                     logging.log(
                         logging.ERROR,
                         f"Ran out of api keys whilst searching:"
@@ -93,18 +90,19 @@ class YtFinder:
                         f"on segment from : {search_from} , search_to : {search_to}",
                     )
                     raise e
-                self.api_key_index += 1
-                self.youtube = build(
+                self._api_key_index += 1
+                self._youtube = build(
                     self.API_SERViCE_NAME,
                     self.API_VERSION,
-                    developerKey=self.api_keys[self.api_key_index],
+                    developerKey=self._api_keys[self._api_key_index],
                 )
+                # continue, to not increment the search_from and search_to dates (and try again)
                 continue
 
             search_from += delta
             search_to += delta
 
-    def scrape_video_stats(self, video: YtVideo):
+    def scrape_video_stats(self, video: YtVideo) -> YtVideoStats:
         # Todo: consider changing param to video_id
 
         video_stats = None
@@ -122,15 +120,15 @@ class YtFinder:
             total_minutes = hours * 60 + minutes + seconds / 60.0
             return total_minutes
 
-        if self.youtube is None:
-            self.youtube = build(
+        if self._youtube is None:
+            self._youtube = build(
                 self.API_SERViCE_NAME,
                 self.API_VERSION,
-                developerKey=self.api_keys[self.api_key_index],
+                developerKey=self._api_keys[self._api_key_index],
             )
 
         try:
-            request = self.youtube.videos().list(
+            request = self._youtube.videos().list(
                 part="statistics,contentDetails",
                 id=video.video_id,
             )
@@ -149,7 +147,7 @@ class YtFinder:
             # if we hit the quota limit, switch to the next api key
             # if we run out of api keys, throw the exception, log progress and exit
 
-            if self.api_key_index > len(self.api_keys) - 1:
+            if self._api_key_index > len(self._api_keys) - 1:
                 logging.log(
                     logging.ERROR,
                     f"Ran out of api keys whilst searching stats:"
@@ -157,11 +155,11 @@ class YtFinder:
                 )
                 raise e
 
-            self.api_key_index += 1
-            self.youtube = build(
+            self._api_key_index += 1
+            self._youtube = build(
                 self.API_SERViCE_NAME,
                 self.API_VERSION,
-                developerKey=self.api_keys[self.api_key_index],
+                developerKey=self._api_keys[self._api_key_index],
             )
             return self.scrape_video_stats(video)
 
@@ -169,23 +167,23 @@ class YtFinder:
 
     # returns generator of lists of videos
     def scrape_top_videos_with_stats(
-        self,
-        topic: str,
-        date_start: datetime.date,
-        date_end: datetime.date,
-        time_delta: int,
-        max_results_per_time_delta: int = 10,
-        language: str = None,
-        stats_lower_limit: int | None = None,
-        length_minutes_lower_limit: int | None = None,
-    ):
+            self,
+            topic: str,
+            date_start: datetime.date,
+            date_end: datetime.date,
+            time_delta: int,
+            max_results_per_time_delta: int = 10,
+            language: str = None,
+            stats_lower_limit: int | None = None,
+            length_minutes_lower_limit: int | None = None,
+    ) -> Generator[list[YtVideo], None, None]:
         for yt_videos in self.scrape_top_videos_basic_info(
-            topic,
-            date_start,
-            date_end,
-            time_delta,
-            max_results_per_time_delta,
-            language,
+                topic,
+                date_start,
+                date_end,
+                time_delta,
+                max_results_per_time_delta,
+                language,
         ):
             vids = []
             for yt_video in yt_videos:
@@ -193,8 +191,8 @@ class YtFinder:
 
                 meets_criteria = True
                 if (
-                    length_minutes_lower_limit
-                    and yt_video.stats.length_minutes < length_minutes_lower_limit
+                        length_minutes_lower_limit
+                        and yt_video.stats.length_minutes < length_minutes_lower_limit
                 ):
                     meets_criteria = False
 
