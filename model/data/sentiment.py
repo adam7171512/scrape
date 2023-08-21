@@ -22,7 +22,7 @@ class GptRating(SentimentRating):
         return self.value
 
 
-class RobertaRating(SentimentRating):
+class SplitScoreRating(SentimentRating):
     negative: float
     neutral: float
     positive: float

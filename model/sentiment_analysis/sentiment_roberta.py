@@ -4,7 +4,7 @@ import numpy as np
 from scipy.special import softmax
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
 
-from model.data.sentiment import ISentimentRater, RobertaRating, RobertaSentiment
+from model.data.sentiment import ISentimentRater, RobertaSentiment, SplitScoreRating
 from model.yt_tools.yt_mongo_repository import YtMongoRepository
 
 
@@ -17,14 +17,14 @@ class RobertaSentimentRater(ISentimentRater):
         self.config = AutoConfig.from_pretrained(self.MODEL)
         self.repository = repository
 
-    def rate(self, text: str) -> RobertaRating:
+    def rate(self, text: str) -> SplitScoreRating:
         encoded_input = self.tokenizer(text, return_tensors="pt", max_length=510)
         output = self.model(**encoded_input)
         scores = output[0][0].detach().numpy()
         scores = softmax(scores)
         ranking = np.argsort(scores)
         rank_scores = dict(zip(ranking, scores[ranking]))
-        return RobertaRating(
+        return SplitScoreRating(
             negative=float(rank_scores[0]),
             neutral=float(rank_scores[1]),
             positive=float(rank_scores[2]),
