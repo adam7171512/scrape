@@ -4,13 +4,8 @@ import numpy as np
 from scipy.special import softmax
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
 
-from model.data.sentiment import RobertaSentiment, RobertaRating
+from model.data.sentiment import RobertaSentiment, RobertaRating, ISentimentRater
 from model.yt_tools.yt_mongo_repository import YtMongoRepository
-
-
-class ISentimentRater(Protocol):
-    def rate(self, text: str) -> RobertaSentiment:
-        ...
 
 
 class RobertaSentimentRater(ISentimentRater):
@@ -22,7 +17,7 @@ class RobertaSentimentRater(ISentimentRater):
         self.config = AutoConfig.from_pretrained(self.MODEL)
         self.repository = repository
 
-    def get_roberta_sentiment(self, text: str) -> RobertaRating:
+    def rate(self, text: str) -> RobertaRating:
         encoded_input = self.tokenizer(text, return_tensors="pt", max_length=510)
         output = self.model(**encoded_input)
         scores = output[0][0].detach().numpy()
@@ -46,7 +41,7 @@ class RobertaSentimentRater(ISentimentRater):
             if vid.stats.sentiment_roberta and not overwrite:
                 continue
 
-            roberta_title_sentiment = self.get_roberta_sentiment(vid.title)
+            roberta_title_sentiment = self.rate(vid.title)
             rs = RobertaSentiment(
                 title_pos=roberta_title_sentiment.positive,
                 title_neu=roberta_title_sentiment.neutral,
@@ -54,7 +49,7 @@ class RobertaSentimentRater(ISentimentRater):
             )
 
             if vid.transcript:
-                roberta_transcript_sentiment = self.get_roberta_sentiment(
+                roberta_transcript_sentiment = self.rate(
                     vid.transcript
                 )
                 rs.transcript_pos = roberta_transcript_sentiment.positive

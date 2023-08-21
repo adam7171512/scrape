@@ -39,3 +39,8 @@ class RobertaSentiment(BaseModel):
     transcript_pos: float | None = None
     transcript_neg: float | None = None
     transcript_neu: float | None = None
+
+
+class ISentimentRater(Protocol):
+    def rate(self, text: str) -> SentimentRating:
+        ...
