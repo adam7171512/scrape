@@ -55,5 +55,6 @@ websockets==11.0.3
 whisper==1.1.10
 yarl==1.9.2
 yt-dlp==2023.7.6
+torch==2.0.1
 isort
 flake8
