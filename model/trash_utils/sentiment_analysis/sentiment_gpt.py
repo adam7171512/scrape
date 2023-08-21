@@ -1,30 +1,45 @@
 from pymongo import MongoClient
 
 from gpt_tools.tools import GptContact
-
-client = MongoClient("mongodb://localhost:27017")
-db = client["youtube"]
-collection = db["videos_weekly_cryptocurrency"]
-
-videos = collection.find()
+from model.data.sentiment import GptRating, ISentimentRater
 
 
-def get_title_sentiment(text):
-    try:
-        rating = GptContact.get_chat_completion(
-            system_message=f"Rate the headline sentiment. Use values between -100 and 100 \n"
-            f"### Guidelines for rating: (but you can use value in between too) :\n"
-            f"-100 : very negative\n"
-            f"-50: negative\n"
-            f"0: neutral\n"
-            f"50: positive\n"
-            f"100: very positive\n"
-            f"### Required answer format:\n"
-            f"sentiment_rating = <rating>",
-            user_message=text,
-            max_tokens=15,
-            temperature=0,
-            model="gpt-3.5-turbo",
+class GptSentimentRater(ISentimentRater):
+    # Todo: move to config
+    MODEL = f"gpt-4"
+    SYSTEM_MESSAGE = """
+    Rate the text sentiment. Use values between -100 and 100
+    ### Guidelines for rating: (but you can use value in between too) :
+    -100 : very negative
+    -50: negative
+    0: neutral
+    50: positive
+    100: very positive
+    ### Required answer format:
+    sentiment_rating = <rating>
+    """
+    RETRY_LIMIT = 3
+
+    def __init__(self):
+        self.gpt = GptContact(model=self.MODEL)
+        self.fail_count = 0
+
+    def rate(self, text: str) -> GptRating:
+        rating = self._get_gpt_sentiment_rating(text)
+
+        if rating is None:
+            if self.fail_count <= self.RETRY_LIMIT:
+                self.fail_count += 1
+                return self.rate(text)
+            else:
+                raise ValueError("Could not get valid gpt sentiment rating")
+
+        self.fail_count = 0
+        return GptRating(value=rating/100)
+
+    def _get_gpt_sentiment_rating(self, text: str) -> float | None:
+        rating = self.gpt.get_chat_completion(
+            self.SYSTEM_MESSAGE, text, max_tokens=15, temperature=0
         )
         str_rating = ""
         # look for number in the response
@@ -33,19 +48,4 @@ def get_title_sentiment(text):
                 str_rating += char
 
         rating = int(str_rating)
-
-        print(f'rating for "{text}" is {rating}')
-        return rating
-    except:
-        return 0
-
-
-for video in videos:
-    if video.get("title_sentiment") == None:
-        print(f"getting title sentiment for {video['video_id']}")
-        title_sentiment = get_title_sentiment(video["title"])
-        video["title_sentiment"] = title_sentiment
-        print(video["title_sentiment"])
-        collection.update_one({"_id": video["_id"]}, {"$set": video})
-    else:
-        print(f"skipping {video['video_id']}")
+        return rating if str_rating else None

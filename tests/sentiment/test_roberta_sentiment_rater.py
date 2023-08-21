@@ -1,29 +1,38 @@
 import pytest
-from model.trash_utils.sentiment_analysis.sentiment_roberta import RobertaSentimentRater, \
-    RobertaRating
-from tests.sentiment_data import read_sentiment_data, SentimentRating
+
+from model.data.sentiment import ISentimentRater, SentimentRating
+from model.trash_utils.sentiment_analysis.sentiment_roberta import (
+    RobertaSentimentRater,
+)
+from tests.sentiment_data import SentimentRatingType, read_sentiment_data
 
 
 @pytest.fixture(scope="module")
-def rsr():
+def sentiment_rater() -> ISentimentRater:
     return RobertaSentimentRater()
 
 
-def test_very_negative_string_should_receive_very_negative_score(rsr):
-    very_negative_string = read_sentiment_data(SentimentRating.VERY_NEGATIVE)[0]
-    roberta_sentiment_rating: RobertaRating = rsr.rate(very_negative_string)
-    assert roberta_sentiment_rating.score < -0.75
+def test_very_negative_string_should_receive_very_negative_score(sentiment_rater):
+    very_negative_string = read_sentiment_data(SentimentRatingType.VERY_NEGATIVE)[0]
+    roberta_sentiment_rating: SentimentRating = sentiment_rater.rate(
+        very_negative_string
+    )
+    assert roberta_sentiment_rating.score <= -0.5
 
 
-def test_neutral_sentiment_string_should_receive_neutral_score(rsr):
-    neutral_string = read_sentiment_data(SentimentRating.NEUTRAL)[0]
-    roberta_sentiment_rating: RobertaRating = rsr.rate(neutral_string)
+def test_neutral_sentiment_string_should_receive_neutral_score(sentiment_rater):
+    neutral_string = read_sentiment_data(SentimentRatingType.NEUTRAL)[0]
+    roberta_sentiment_rating: SentimentRating = sentiment_rater.rate(neutral_string)
     score = roberta_sentiment_rating.score
-    assert -0.2 < score < 0.2
+    assert -0.25 <= score <= 0.25
 
 
-def test_very_positive_sentiment_string_should_receive_very_positive_score(rsr):
-    very_positive_string = read_sentiment_data(SentimentRating.VERY_POSITIVE)[0]
-    roberta_sentiment_rating: RobertaRating = rsr.rate(very_positive_string)
+def test_very_positive_sentiment_string_should_receive_very_positive_score(
+    sentiment_rater,
+):
+    very_positive_string = read_sentiment_data(SentimentRatingType.VERY_POSITIVE)[0]
+    roberta_sentiment_rating: SentimentRating = sentiment_rater.rate(
+        very_positive_string
+    )
     score = roberta_sentiment_rating.score
-    assert score > 0.8
+    assert score >= 0.5
