@@ -4,10 +4,15 @@ from model.youtube.core import IYtStatsScraper, YtVideoStats
 
 
 class YtApiStatsScraper(IYtStatsScraper):
-    def __init__(self, yt_client):
-        self._yt_client = yt_client
+    def __init__(self):
+        self._yt_client = None
+        self._key_manager = None
 
     def scrape_stats(self, video_id: str) -> YtVideoStats:
+
+        if self._yt_client is None:
+            raise Exception("YtApiStatsScraper: yt_client is not set")
+
         video_stats = None
 
         def _get_duration_in_minutes(duration):
@@ -41,6 +46,9 @@ class YtApiStatsScraper(IYtStatsScraper):
             )
 
         return video_stats
+
+    def set_yt_api_client(self, yt_client):
+        self._yt_client = yt_client
 
 
 class YtDlpStatsScraper(IYtStatsScraper):

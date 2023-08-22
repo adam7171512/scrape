@@ -16,12 +16,15 @@ class YtFinder:
     API_SERVICE_NAME = "youtube"
     API_VERSION = "v3"
 
-    def __init__(self, api_keys: list[str]):
+    def __init__(self, api_keys: list[str], stats_scraper: IYtStatsScraper = None):
         self._api_keys = api_keys
         self._api_key_index = 0
 
         self._youtube = self._build_client()
-        self.stats_scraper = YtApiStatsScraper(self._youtube)
+
+        if stats_scraper is None:
+            self.stats_scraper = YtApiStatsScraper()
+            self.stats_scraper.set_yt_api_client(self._youtube)
 
     def _build_client(self) -> Any:
         api_key = self._api_keys[self._api_key_index]
@@ -142,8 +145,8 @@ class YtFinder:
             # if we hit the quota limit, switch to the next api key
             # if we run out of api keys, throw the exception, log progress and exit
 
-            if self._next_key():
-                self.stats_scraper = YtApiStatsScraper(self._youtube)
+            if isinstance(self.stats_scraper, YtApiStatsScraper) and self._next_key():
+                self.stats_scraper.set_yt_api_client(self._youtube)
                 return self.scrape_video_stats(video)
             else:
                 raise e
