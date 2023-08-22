@@ -8,6 +8,7 @@ from model.youtube.processing.core import IYtVidScrapingProcessor
 from model.youtube.processing.serial_processor import YtVidScrapingSerialProcessor
 from model.youtube.whisper_transcript import WhisperTranscript
 from model.youtube.yt_audio_downloader import YtAudioDownloader
+from model.youtube.yt_stats_scraper import YtDlpStatsScraper, YtApiStatsScraper
 from model.youtube.yt_top_vid_finder import YtFinder
 from model.youtube.yt_transcript_scraper import YtWhisperTranscriptScraper, YtYtDlpTranscriptScraper
 
@@ -30,7 +31,7 @@ def get_scraper_processor() -> IYtVidScrapingProcessor:
             whisper,
             YtAudioDownloader(),
         )
-    elif scraper_config["transcript_scraper"] == "ytdlp":
+    elif scraper_config["transcript_scraper"] == "yt-dlp":
         transcript_scraper = YtYtDlpTranscriptScraper()
     else:
         raise Exception("Invalid transcript scraper type")
@@ -46,7 +47,13 @@ def get_scraper_processor() -> IYtVidScrapingProcessor:
 
     overwrite_existing_data = scraper_config["overwrite_existing_data"]
 
-    yt_finder = YtFinder(get_yt_api_keys())
+    stats_scraper = None
+    if scraper_config["stats_scraper"] == "yt-dlp":
+        stats_scraper = YtDlpStatsScraper()
+    elif scraper_config["stats_scraper"] == "ytapi":
+        stats_scraper = YtApiStatsScraper()
+
+    yt_finder = YtFinder(get_yt_api_keys(), stats_scraper=stats_scraper)
 
     if scraper_config["pipeline"] == "serial":
         return YtVidScrapingSerialProcessor(
