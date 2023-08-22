@@ -110,8 +110,10 @@ class YtVidScrapingBatchProcessor(IYtVidScrapingProcessor):
 
             if title_sentiment_rating is None:
                 title_sentiment_rating = self.sentiment_rater.rate(video.title).score
-            if transcript_sentiment_rating is None:
+            if transcript and transcript_sentiment_rating is None:
                 transcript_sentiment_rating = self.sentiment_rater.rate(transcript).score
+            elif not transcript:
+                logging.log(logging.ERROR, f"Video {video.video_id} has no transcript.")
 
             sentiment_rating = YoutubeVideoSentimentRating(
                 model=self.sentiment_rater.model_name,
