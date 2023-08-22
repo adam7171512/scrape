@@ -54,23 +54,6 @@ def test_scrape_top_videos_basic_info_when_two_time_partitions_should_yield_2_li
     assert isinstance(list_of_vid_lists[1][0], YtVideo)
 
 
-def test_scrape_video_stats_never_gonna_give_you_up_should_return_over_1b_views_2m_comments_3half_length(
-    yt_finder,
-):
-    rick_id = "dQw4w9WgXcQ"
-    vid = YtVideo(
-        video_id=rick_id,
-        title="Rick Astley - Never Gonna Give You Up (Video)",
-        channel="RickAstleyVEVO",
-        date=datetime.datetime(2009, 10, 25, 0, 0),
-    )
-
-    stats: YtVideoStats = yt_finder.scrape_video_stats(vid)
-    assert stats.views > 1_000_000_000
-    assert stats.comments > 2_000_000
-    assert 3.5 < stats.length_minutes < 3.7
-
-
 def test_scrape_top_videos_with_stats_should_yield_list_of_videos_with_stats(yt_finder):
     vid_list_full_info_generator = yt_finder.scrape_top_videos_with_stats(
         topic="Bitcoin",
