@@ -1,7 +1,7 @@
 from model.youtube.core import YtVideo
+from model.youtube.persistence.mongo import YtMongoRepository
 from model.youtube.whisper_transcript import WhisperTranscript
 from model.youtube.yt_audio_downloader import YtAudioDownloader
-from model.youtube.yt_mongo_repository import YtMongoRepository
 from model.youtube.yt_transcript_scraper import (IYtTranscriptScraper,
                                                  YtWhisperTranscriptScraper,
                                                  YtYtDlpTranscriptScraper)

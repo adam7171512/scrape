@@ -1,20 +1,16 @@
 from datetime import datetime
 
-from pymongo import MongoClient
-
-from model.youtube.yt_mongo_repository import YtMongoRepository
+from model.youtube.persistence.mongo import YtMongoRepository
 from model.youtube.yt_top_vid_finder import YtFinder
 
 
 class YtScraper:
-    def __init__(self, db_client: MongoClient, api_keys: list[str]):
-        self.db_client = db_client
-        self.api_keys = api_keys
+    def __init__(self, repository: YtMongoRepository, vid_finder: YtFinder):
+        self.repository = repository
+        self.vid_finder = vid_finder
 
     def scrape(
         self,
-        db_name: str,
-        collection_name: str,
         topic: str,
         date_start: datetime.date,
         date_end: datetime.date,
@@ -24,8 +20,7 @@ class YtScraper:
         stats_lower_limit: int | None = None,
         length_minutes_lower_limit: int | None = None,
     ):
-        scraper = YtFinder(api_keys=self.api_keys)
-        vids = scraper.scrape_top_videos_with_stats(
+        vids = self.vid_finder.scrape_top_videos_with_stats(
             topic=topic,
             date_start=date_start,
             date_end=date_end,
@@ -35,10 +30,7 @@ class YtScraper:
             stats_lower_limit=stats_lower_limit,
             length_minutes_lower_limit=length_minutes_lower_limit,
         )
-        db = self.db_client[db_name]
-        collection = db[collection_name]
-        repo = YtMongoRepository(collection)
 
         for video_batch in vids:
             for video in video_batch:
-                repo.add_if_doesnt_exist(video)
+                self.repository.add_if_doesnt_exist(video)

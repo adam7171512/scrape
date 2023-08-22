@@ -3,13 +3,14 @@ from datetime import datetime
 from pymongo.collection import Collection
 
 from model.youtube.core import YtVideo
+from model.youtube.persistence.core import IYtVideoRepository
 
 
-class YtMongoRepository:
+class YtVideoMongoRepository(IYtVideoRepository):
     def __init__(self, collection: Collection):
         self.collection = collection
 
-    def upsert_video(self, video: YtVideo) -> bool:
+    def add_or_update(self, video: YtVideo) -> bool:
         self.collection.update_one(
             {"video_id": video.video_id}, {"$set": video.model_dump()}, upsert=True
         )
@@ -33,7 +34,7 @@ class YtMongoRepository:
     def get_video(self, video_id: str) -> YtVideo:
         return YtVideo(**self.collection.find_one({"video_id": video_id}))
 
-    def get_videos_for_daterange(
+    def get_videos_by_date(
         self, date_start: datetime.date, date_end: datetime.date
     ) -> list[YtVideo]:
         return [
@@ -43,7 +44,7 @@ class YtMongoRepository:
             )
         ]
 
-    def find_all(self) -> list[YtVideo]:
+    def get_all_videos(self) -> list[YtVideo]:
         return [YtVideo(**video) for video in self.collection.find()]
 
     def get_videos_by_views(
@@ -54,15 +55,3 @@ class YtMongoRepository:
             params["stats.views"]["$lte"] = views_max
 
         return [YtVideo(**video) for video in self.collection.find(params)]
-
-
-class YtMongoRepositoryFactory:
-    def __init__(self, db_name: str, collection_name: str):
-        import pymongo
-
-        self.client = pymongo.MongoClient("mongodb://localhost:27017")
-        self.db = self.client[db_name]
-        self.collection = self.db[collection_name]
-
-    def create(self) -> YtMongoRepository:
-        return YtMongoRepository(self.collection)
