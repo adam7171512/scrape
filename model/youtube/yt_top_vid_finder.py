@@ -5,7 +5,8 @@ from typing import Generator
 
 from googleapiclient.discovery import build
 
-from model.youtube.core import YtVideo, YtVideoStats
+from model.youtube.core import YtVideo, YtVideoStats, IYtStatsScraper
+from model.youtube.yt_stats_scraper import YtApiStatsScraper
 
 
 class YtFinder:
@@ -15,9 +16,10 @@ class YtFinder:
     API_SERViCE_NAME = "youtube"
     API_VERSION = "v3"
 
-    def __init__(self, api_keys: list[str]):
+    def __init__(self, api_keys: list[str], stat_scraper: IYtStatsScraper):
         self._api_keys = api_keys
         self._api_key_index = 0
+        self.stats_scraper = stat_scraper
 
         self._youtube = None
 
@@ -82,7 +84,9 @@ class YtFinder:
                 # if we hit the quota limit, switch to the next api key
                 # if we run out of api keys, throw the exception, log progress and exit
 
-                if self._api_key_index >= len(self._api_keys) - 1:
+                if self._next_key():
+                    continue
+                else:
                     logging.log(
                         logging.ERROR,
                         f"Ran out of api keys whilst searching:"
@@ -90,80 +94,36 @@ class YtFinder:
                         f"on segment from : {search_from} , search_to : {search_to}",
                     )
                     raise e
-                self._api_key_index += 1
-                self._youtube = build(
-                    self.API_SERViCE_NAME,
-                    self.API_VERSION,
-                    developerKey=self._api_keys[self._api_key_index],
-                )
-                # continue, to not increment the search_from and search_to dates (and try again)
-                continue
 
             search_from += delta
             search_to += delta
 
+    def _next_key(self) -> bool:
+
+        if self._api_key_index >= len(self._api_keys) - 1:
+            return False
+
+        self._api_key_index += 1
+        self._youtube = build(
+            self.API_SERViCE_NAME,
+            self.API_VERSION,
+            developerKey=self._api_keys[self._api_key_index],
+        )
+
+        return True
+
     def scrape_video_stats(self, video: YtVideo) -> YtVideoStats:
-        # Todo: consider changing param to video_id
-
-        video_stats = None
-
-        def _get_duration_in_minutes(duration):
-            duration_regex = re.compile(
-                r"PT((?P<hours>\d+)H)?((?P<minutes>\d+)M)?((?P<seconds>\d+)S)?"
-            )
-            matches = duration_regex.match(duration)
-            if not matches:
-                return 0
-            hours = int(matches.group("hours")) if matches.group("hours") else 0
-            minutes = int(matches.group("minutes")) if matches.group("minutes") else 0
-            seconds = int(matches.group("seconds")) if matches.group("seconds") else 0
-            total_minutes = hours * 60 + minutes + seconds / 60.0
-            return total_minutes
-
-        if self._youtube is None:
-            self._youtube = build(
-                self.API_SERViCE_NAME,
-                self.API_VERSION,
-                developerKey=self._api_keys[self._api_key_index],
-            )
-
         try:
-            request = self._youtube.videos().list(
-                part="statistics,contentDetails",
-                id=video.video_id,
-            )
-            response = request.execute()
-            items = response.get("items", [])
-            if len(items) > 0:
-                video_stats = YtVideoStats(
-                    views=int(items[0].get("statistics").get("viewCount", 0)),
-                    comments=int(items[0].get("statistics").get("commentCount", 0)),
-                    likes=int(items[0].get("statistics").get("likeCount", 0)),
-                    length_minutes=_get_duration_in_minutes(
-                        items[0].get("contentDetails").get("duration")
-                    ),
-                )
+            return self.stats_scraper.scrape_stats(video.video_id)
         except Exception as e:
             # if we hit the quota limit, switch to the next api key
             # if we run out of api keys, throw the exception, log progress and exit
 
-            if self._api_key_index > len(self._api_keys) - 1:
-                logging.log(
-                    logging.ERROR,
-                    f"Ran out of api keys whilst searching stats:"
-                    f"video : {video.video_id} , channel : {video.channel}",
-                )
+            if self._next_key():
+                self.stats_scraper = YtApiStatsScraper(self._youtube)
+                return self.scrape_video_stats(video)
+            else:
                 raise e
-
-            self._api_key_index += 1
-            self._youtube = build(
-                self.API_SERViCE_NAME,
-                self.API_VERSION,
-                developerKey=self._api_keys[self._api_key_index],
-            )
-            return self.scrape_video_stats(video)
-
-        return video_stats
 
     # returns generator of lists of videos
     def scrape_top_videos_with_stats(

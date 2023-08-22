@@ -1,4 +1,5 @@
 import datetime
+from typing import Protocol
 
 from pydantic import BaseModel
 
@@ -39,3 +40,9 @@ class YtVideo(BaseModel):
     @property
     def url(self):
         return f"https://www.youtube.com/watch?v={self.video_id}"
+
+
+class IYtStatsScraper(Protocol):
+
+    def scrape_stats(self, video_id: str) -> YtVideoStats:
+        ...
