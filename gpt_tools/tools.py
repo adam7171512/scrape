@@ -17,7 +17,11 @@ class GptContact:
     OPEN_AI_MODERATION_URL = "https://api.openai.com/v1/moderations"
     token_limits = {
         "gpt-3.5-turbo": 4096,
-        "gpt-4": 8000,
+        "gpt-4": 4096,
+    }
+    context_limits = {
+        "gpt-3.5-turbo": 3048,
+        "gpt-4": 3048,
     }
 
     def __init__(self, api_key: str, model: str = "gpt-3.5-turbo"):
@@ -96,7 +100,8 @@ class GptContact:
         self.conversation.append({"role": "assistant", "content": answer})
         return answer
 
-    def count_tokens(self, text: str) -> int:
+    @staticmethod
+    def count_tokens(text: str) -> int:
         return len(tiktoken.get_encoding("cl100k_base").encode(text))
 
     def get_moderation_info(self, content: str):
@@ -139,9 +144,39 @@ class GptContact:
             .add_message(Role.USER, user_message)
             .build()
         )
+        inp = GptContact.truncate_input(GptContact.context_limits[model], inp)
         return GptContact.get_chat_completion_for_formatted_input(
             inp, model, temperature, max_tokens
         )
+
+    # todo: refactor the truncator so that it checks and counts word by word
+    @staticmethod
+    def truncate_input(token_limit: int, inp: list[dict]):
+        token_count = sum(GptContact.count_tokens(message['content']) for message in inp)
+
+        truncated_input = inp.copy()
+        if token_count > token_limit:
+            tokens_to_remove = token_count - token_limit
+
+            i = len(inp) - 1
+            while tokens_to_remove > 0:
+                message = truncated_input[i]
+                message_token_count = GptContact.count_tokens(message['content'])
+
+                if message_token_count <= tokens_to_remove:
+                    truncated_input.pop(i)
+                    tokens_to_remove -= message_token_count
+                    i -= 1
+                else:
+                    ratio = tokens_to_remove / message_token_count
+                    message['content'] = message['content'][:int(len(message['content']) * ratio) - 10]
+                    new_message_token_count = GptContact.count_tokens(message['content'])
+                    tokens_to_remove -= (message_token_count - new_message_token_count)
+
+        return truncated_input
+
+
+
 
     @staticmethod
     def get_insertion_completion(

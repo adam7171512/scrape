@@ -31,8 +31,11 @@ class YtVideoMongoRepository(IYtVideoRepository):
             return True
         return False
 
-    def get_video(self, video_id: str) -> YtVideo:
-        return YtVideo(**self.collection.find_one({"video_id": video_id}))
+    def get_video(self, video_id: str) -> YtVideo | None:
+        result = self.collection.find_one({"video_id": video_id})
+        if result:
+            return YtVideo(**result)
+        return None
 
     def get_videos_by_date(
         self, date_start: datetime.date, date_end: datetime.date

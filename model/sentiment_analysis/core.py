@@ -30,3 +30,6 @@ class SplitScoreRating(SentimentRating):
 class ISentimentRater(Protocol):
     def rate(self, text: str) -> SentimentRating:
         ...
+
+    def model_name(self) -> str:
+        ...

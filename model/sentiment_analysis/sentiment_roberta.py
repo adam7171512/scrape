@@ -4,13 +4,13 @@ from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
 
 from model.sentiment_analysis.core import ISentimentRater, SplitScoreRating
-from model.youtube.persistence.mongo import YtMongoRepository
+from model.youtube.persistence.mongo import YtVideoMongoRepository
 
 
 class RobertaSentimentRater(ISentimentRater):
     MODEL = f"cardiffnlp/twitter-roberta-base-sentiment"
 
-    def __init__(self, repository: YtMongoRepository | None = None):
+    def __init__(self, repository: YtVideoMongoRepository | None = None):
         self.model = AutoModelForSequenceClassification.from_pretrained(self.MODEL)
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL)
         self.config = AutoConfig.from_pretrained(self.MODEL)
@@ -28,3 +28,7 @@ class RobertaSentimentRater(ISentimentRater):
             neutral=float(rank_scores[1]),
             positive=float(rank_scores[2]),
         )
+
+    @property
+    def model_name(self) -> str:
+        return self.MODEL

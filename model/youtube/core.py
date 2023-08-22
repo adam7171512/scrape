@@ -15,7 +15,7 @@ class YtVideoStats(BaseModel):
     comments: int = None
     likes: int = None
     length_minutes: float = None
-    sentiment_ratings: list[YoutubeVideoSentimentRating] = []
+    sentiment_rating: YoutubeVideoSentimentRating | None = None
 
 
 class YtVideo(BaseModel):

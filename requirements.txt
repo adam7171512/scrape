@@ -21,7 +21,7 @@ huggingface-hub==0.16.4
 idna==3.4
 multidict==6.0.4
 mutagen==1.46.0
-numpy==1.25.2
+numpy==1.24
 openai==0.27.8
 packaging==23.1
 pandas==2.0.3
@@ -52,9 +52,9 @@ tzdata==2023.3
 uritemplate==4.1.1
 urllib3==1.26.16
 websockets==11.0.3
-whisper==1.1.10
 yarl==1.9.2
 yt-dlp==2023.7.6
 torch==2.0.1
 isort
 flake8
+openai-whisper

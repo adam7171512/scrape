@@ -33,3 +33,7 @@ class FinbertSentimentRater(ISentimentRater):
             positive=float(rank_scores[0]),
         )
         return sentiment_rating
+
+    @property
+    def model_name(self) -> str:
+        return self.MODEL

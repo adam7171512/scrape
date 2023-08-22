@@ -22,3 +22,13 @@ def get_mongo_db_url() -> str:
     config = toml.load(f"{path}/config.toml")
     db_url = config["db"]["mongo_db_url"]
     return db_url
+
+def get_scraper_config() -> dict:
+    path = os.path.dirname(os.path.abspath(__file__))
+    config = toml.load(f"{path}/config.toml")
+    return config["scraper"]
+
+def get_db_config(db_type: str) -> dict:
+    path = os.path.dirname(os.path.abspath(__file__))
+    config = toml.load(f"{path}/config.toml")
+    return config[db_type]

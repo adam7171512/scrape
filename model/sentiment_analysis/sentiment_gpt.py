@@ -47,3 +47,7 @@ class GptSentimentRater(ISentimentRater):
 
         rating = int(str_rating)
         return rating if str_rating else None
+
+    @property
+    def model_name(self) -> str:
+        return self.MODEL
