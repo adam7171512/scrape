@@ -28,4 +28,3 @@ class RobertaSentimentRater(ISentimentRater):
             neutral=float(rank_scores[1]),
             positive=float(rank_scores[2]),
         )
-

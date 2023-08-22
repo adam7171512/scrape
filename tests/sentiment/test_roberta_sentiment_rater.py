@@ -2,7 +2,8 @@ import pytest
 
 from model.sentiment_analysis.core import ISentimentRater, SentimentRating
 from model.sentiment_analysis.sentiment_roberta import RobertaSentimentRater
-from tests.resources.sentiment_data import SentimentRatingType, read_sentiment_data
+from tests.resources.sentiment_data import (SentimentRatingType,
+                                            read_sentiment_data)
 
 
 @pytest.fixture(scope="module")

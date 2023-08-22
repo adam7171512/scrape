@@ -1,5 +1,5 @@
 from gpt_tools.tools import GptContact
-from model.sentiment_analysis.core import ISentimentRater, GptRating
+from model.sentiment_analysis.core import GptRating, ISentimentRater
 
 
 class GptSentimentRater(ISentimentRater):
@@ -33,7 +33,7 @@ class GptSentimentRater(ISentimentRater):
                 raise ValueError("Could not get valid gpt sentiment rating")
 
         self.fail_count = 0
-        return GptRating(value=rating/100)
+        return GptRating(value=rating / 100)
 
     def _get_gpt_sentiment_rating(self, text: str) -> float | None:
         rating = self.gpt.get_chat_completion(

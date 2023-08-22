@@ -1,5 +1,6 @@
-import toml
 import os
+
+import toml
 
 
 def get_yt_api_keys() -> list[str]:

@@ -2,10 +2,11 @@ import configparser
 
 import pytest
 
+from config_data_provider import get_open_ai_api_key
 from model.sentiment_analysis.core import ISentimentRater, SentimentRating
 from model.sentiment_analysis.sentiment_gpt import GptSentimentRater
-from tests.resources.sentiment_data import SentimentRatingType, read_sentiment_data
-from config_data_provider import get_open_ai_api_key
+from tests.resources.sentiment_data import (SentimentRatingType,
+                                            read_sentiment_data)
 
 
 @pytest.fixture(scope="module")

@@ -7,9 +7,6 @@ import requests
 import tiktoken
 
 
-
-
-
 class Role(Enum):
     USER = "user"
     ASSISTANT = "assistant"
@@ -53,11 +50,11 @@ class GptContact:
         return self
 
     def get_completion(
-            self,
-            temperature: float = 1,
-            max_response_tokens=1000,
-            chat_history_token_limit=None,
-            chat_history_recent_messages_limit=None,
+        self,
+        temperature: float = 1,
+        max_response_tokens=1000,
+        chat_history_token_limit=None,
+        chat_history_recent_messages_limit=None,
     ):
         if not self.conversation:
             raise ValueError("No messages to send!")
@@ -68,7 +65,7 @@ class GptContact:
             self.count_tokens(str(self._system_message)) if self.system_message else 0
         )
         chat_history_tokens_available = (
-                self.model_token_limit - sys_message_tokens - max_response_tokens
+            self.model_token_limit - sys_message_tokens - max_response_tokens
         )
 
         if chat_history_token_limit:
@@ -80,8 +77,8 @@ class GptContact:
         for message in reversed(self.conversation):
             message_token_count = self.count_tokens(str(message))
             if (
-                    chat_history_recent_messages_limit
-                    and messages_appended >= chat_history_recent_messages_limit
+                chat_history_recent_messages_limit
+                and messages_appended >= chat_history_recent_messages_limit
             ):
                 break
             elif chat_history_tokens_available < message_token_count:
@@ -115,10 +112,10 @@ class GptContact:
 
     @staticmethod
     def get_chat_completion_for_formatted_input(
-            messages: List[Dict],
-            model: str = "gpt-3.5-turbo",
-            temperature: float = 1,
-            max_tokens=1999,
+        messages: List[Dict],
+        model: str = "gpt-3.5-turbo",
+        temperature: float = 1,
+        max_tokens=1999,
     ):
         response = openai.ChatCompletion.create(
             model=model,
@@ -130,11 +127,11 @@ class GptContact:
 
     @staticmethod
     def get_chat_completion(
-            system_message: str,
-            user_message: str,
-            model: str = "gpt-3.5-turbo",
-            temperature: float = 1,
-            max_tokens=1999,
+        system_message: str,
+        user_message: str,
+        model: str = "gpt-3.5-turbo",
+        temperature: float = 1,
+        max_tokens=1999,
     ):
         inp = (
             ApiInputBuilder()
@@ -148,10 +145,10 @@ class GptContact:
 
     @staticmethod
     def get_insertion_completion(
-            prefix_message: str,
-            suffix_message: str = "",
-            model: str = "gpt-3.5-turbo",
-            max_tokens=20,
+        prefix_message: str,
+        suffix_message: str = "",
+        model: str = "gpt-3.5-turbo",
+        max_tokens=20,
     ):
         return (
             openai.Completion.create(
@@ -168,9 +165,9 @@ class GptContact:
 
     @staticmethod
     def get_edit_completion(
-            message: str,
-            instruction: str,
-            model: str = "text-davinci-edit-001",
+        message: str,
+        instruction: str,
+        model: str = "text-davinci-edit-001",
     ):
         return (
             openai.Edit.create(
