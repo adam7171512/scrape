@@ -1,11 +1,10 @@
 import datetime
 import logging
-import re
-from typing import Generator
+from typing import Any, Generator
 
 from googleapiclient.discovery import build
 
-from model.youtube.core import YtVideo, YtVideoStats, IYtStatsScraper
+from model.youtube.core import IYtStatsScraper, YtVideo, YtVideoStats
 from model.youtube.yt_stats_scraper import YtApiStatsScraper
 
 
@@ -13,24 +12,39 @@ class YtFinder:
     """
     Todo: remove the key handling responsibility from this class
     """
-    API_SERViCE_NAME = "youtube"
+
+    API_SERVICE_NAME = "youtube"
     API_VERSION = "v3"
 
-    def __init__(self, api_keys: list[str], stat_scraper: IYtStatsScraper):
+    def __init__(self, api_keys: list[str]):
         self._api_keys = api_keys
         self._api_key_index = 0
-        self.stats_scraper = stat_scraper
 
-        self._youtube = None
+        self._youtube = self._build_client()
+        self.stats_scraper = YtApiStatsScraper(self._youtube)
+
+    def _build_client(self) -> Any:
+        api_key = self._api_keys[self._api_key_index]
+        logging.log(
+            logging.WARNING,
+            f"Rebuilding the api client, key: {api_key}. "
+            f"Current key index: {self._api_key_index}",
+        )
+
+        return build(
+            self.API_SERVICE_NAME,
+            self.API_VERSION,
+            developerKey=api_key,
+        )
 
     def scrape_top_videos_basic_info(
-            self,
-            topic: str,
-            date_start: datetime.date,
-            date_end: datetime.date,
-            time_delta: int,
-            max_results_per_time_delta: int = 10,
-            language: str = None,
+        self,
+        topic: str,
+        date_start: datetime.date,
+        date_end: datetime.date,
+        time_delta: int,
+        max_results_per_time_delta: int = 10,
+        language: str = None,
     ) -> Generator[list[YtVideo], None, None]:
         """
         Returns a generator of lists of videos, where each list is the top videos for a given time delta
@@ -40,17 +54,15 @@ class YtFinder:
         search_from = date_start
         search_to = date_start + delta
 
-        if self._youtube is None:
-            self._youtube = build(
-                self.API_SERViCE_NAME,
-                self.API_VERSION,
-                developerKey=self._api_keys[self._api_key_index],
-            )
-
         while search_from <= date_end:
-
             if search_to > date_end:
                 search_to = date_end
+
+            logging.log(
+                logging.DEBUG,
+                f"Attempting youtube api search : \n"
+                f"topic: {topic}, from: {search_from} , to: {search_to}",
+            )
 
             parameters = {
                 "part": "snippet",
@@ -93,26 +105,37 @@ class YtFinder:
                         f"topic : {topic} , date range : {date_start} - {date_end}"
                         f"on segment from : {search_from} , search_to : {search_to}",
                     )
-                    raise e
+                    raise Exception("quota limit reached")
 
             search_from += delta
             search_to += delta
 
     def _next_key(self) -> bool:
+        logging.log(
+            logging.WARNING,
+            f"Switching the api key, as the {self._api_key_index} "
+            f"key quota has been reached",
+        )
 
         if self._api_key_index >= len(self._api_keys) - 1:
+            logging.log(
+                logging.ERROR,
+                f"All api keys used. Current index: {self._api_key_index}."
+                f" Cant build new client",
+            )
+
             return False
 
         self._api_key_index += 1
-        self._youtube = build(
-            self.API_SERViCE_NAME,
-            self.API_VERSION,
-            developerKey=self._api_keys[self._api_key_index],
-        )
+        self._youtube = self._build_client()
 
         return True
 
     def scrape_video_stats(self, video: YtVideo) -> YtVideoStats:
+        logging.log(
+            logging.DEBUG, f"Attempting stats scraping for video, id : {video.video_id}"
+        )
+
         try:
             return self.stats_scraper.scrape_stats(video.video_id)
         except Exception as e:
@@ -127,23 +150,23 @@ class YtFinder:
 
     # returns generator of lists of videos
     def scrape_top_videos_with_stats(
-            self,
-            topic: str,
-            date_start: datetime.date,
-            date_end: datetime.date,
-            time_delta: int,
-            max_results_per_time_delta: int = 10,
-            language: str = None,
-            stats_lower_limit: int | None = None,
-            length_minutes_lower_limit: int | None = None,
+        self,
+        topic: str,
+        date_start: datetime.date,
+        date_end: datetime.date,
+        time_delta: int,
+        max_results_per_time_delta: int = 10,
+        language: str = None,
+        stats_lower_limit: int | None = None,
+        length_minutes_lower_limit: int | None = None,
     ) -> Generator[list[YtVideo], None, None]:
         for yt_videos in self.scrape_top_videos_basic_info(
-                topic,
-                date_start,
-                date_end,
-                time_delta,
-                max_results_per_time_delta,
-                language,
+            topic,
+            date_start,
+            date_end,
+            time_delta,
+            max_results_per_time_delta,
+            language,
         ):
             vids = []
             for yt_video in yt_videos:
@@ -151,8 +174,8 @@ class YtFinder:
 
                 meets_criteria = True
                 if (
-                        length_minutes_lower_limit
-                        and yt_video.stats.length_minutes < length_minutes_lower_limit
+                    length_minutes_lower_limit
+                    and yt_video.stats.length_minutes < length_minutes_lower_limit
                 ):
                     meets_criteria = False
 
