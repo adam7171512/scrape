@@ -1,9 +1,11 @@
 import datetime
 
+import pytest
+from mockito import any, mock, unstub, verify, when
+
 from config_data_provider import get_yt_api_keys
 from model.youtube.core import YtVideo, YtVideoStats
 from model.youtube.yt_top_vid_finder import YtFinder
-import pytest
 
 
 @pytest.fixture(scope="module")
@@ -11,7 +13,9 @@ def yt_finder() -> YtFinder:
     return YtFinder(get_yt_api_keys())
 
 
-def test_scrape_top_videos_basic_info_when_max_results_10_should_yield_10_element_list(yt_finder):
+def test_scrape_top_videos_basic_info_when_max_results_10_should_yield_10_element_list(
+    yt_finder,
+):
     vid_list_basic_info_generator = yt_finder.scrape_top_videos_basic_info(
         topic="Bitcoin",
         date_start=datetime.date(2020, 1, 1),
@@ -26,7 +30,9 @@ def test_scrape_top_videos_basic_info_when_max_results_10_should_yield_10_elemen
     assert isinstance(list_of_vid_lists[0][0], YtVideo)
 
 
-def test_scrape_top_videos_basic_info_when_max_results_5_should_yield_5_element_list(yt_finder):
+def test_scrape_top_videos_basic_info_when_max_results_5_should_yield_5_element_list(
+    yt_finder,
+):
     vid_list_basic_info_generator = yt_finder.scrape_top_videos_basic_info(
         topic="Bitcoin",
         date_start=datetime.date(2020, 1, 1),
@@ -41,7 +47,9 @@ def test_scrape_top_videos_basic_info_when_max_results_5_should_yield_5_element_
     assert isinstance(list_of_vid_lists[0][0], YtVideo)
 
 
-def test_scrape_top_videos_basic_info_when_two_time_partitions_should_yield_2_lists(yt_finder):
+def test_scrape_top_videos_basic_info_when_two_time_partitions_should_yield_2_lists(
+    yt_finder,
+):
     vid_list_basic_info_generator = yt_finder.scrape_top_videos_basic_info(
         topic="Bitcoin",
         date_start=datetime.date(2020, 1, 1),
@@ -58,7 +66,9 @@ def test_scrape_top_videos_basic_info_when_two_time_partitions_should_yield_2_li
     assert isinstance(list_of_vid_lists[1][0], YtVideo)
 
 
-def test_scrape_video_stats_never_gonna_give_you_up_should_return_over_1b_views_2m_comments_3half_length(yt_finder):
+def test_scrape_video_stats_never_gonna_give_you_up_should_return_over_1b_views_2m_comments_3half_length(
+    yt_finder,
+):
     rick_id = "dQw4w9WgXcQ"
     vid = YtVideo(
         video_id=rick_id,
@@ -88,3 +98,33 @@ def test_scrape_top_videos_with_stats_should_yield_list_of_videos_with_stats(yt_
     assert isinstance(list_of_vid_lists[0][0], YtVideo)
     assert isinstance(list_of_vid_lists[0][0].stats, YtVideoStats)
     assert list_of_vid_lists[0][0].stats.views > 1
+
+
+def test_scrape_top_videos_when_quota_reached_should_switch_api_keys_then_raise(
+    yt_finder,
+):
+    mock_api_client = mock()
+
+    # make mock api client throw exception when we call search method on it to simulate
+    # the quota limit reached
+    when(mock_api_client).search(any()).thenRaise(Exception("quota limit reached"))
+
+    api_keys_number = len(get_yt_api_keys())
+
+    when(yt_finder)._build_client().thenReturn(mock_api_client)
+    yt_finder._youtube = yt_finder._build_client()
+
+    with pytest.raises(Exception, match="quota limit reached"):
+        list(
+            yt_finder.scrape_top_videos_basic_info(
+                topic="Bitcoin",
+                date_start=datetime.date(2020, 1, 1),
+                date_end=datetime.date(2020, 1, 14),
+                time_delta=7,
+                max_results_per_time_delta=5,
+            )
+        )
+
+    # make sure the client gets rebuilt number of times equal to number
+    # of our api keys
+    verify(yt_finder, times=api_keys_number)._build_client()
