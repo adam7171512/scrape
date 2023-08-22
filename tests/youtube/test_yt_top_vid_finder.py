@@ -1,7 +1,7 @@
 import datetime
 
 import pytest
-from mockito import any, mock, unstub, verify, when
+from mockito import any, mock, verify, when
 
 from config_data_provider import get_yt_api_keys
 from model.youtube.core import YtVideo, YtVideoStats
@@ -13,37 +13,22 @@ def yt_finder() -> YtFinder:
     return YtFinder(get_yt_api_keys())
 
 
-def test_scrape_top_videos_basic_info_when_max_results_10_should_yield_10_element_list(
-    yt_finder,
-):
+@pytest.mark.parametrize("max_results,expected_length", [
+    (10, 10),
+    (5, 5),
+])
+def test_scrape_top_videos_basic_info(yt_finder, max_results, expected_length):
     vid_list_basic_info_generator = yt_finder.scrape_top_videos_basic_info(
         topic="Bitcoin",
         date_start=datetime.date(2020, 1, 1),
         date_end=datetime.date(2020, 1, 7),
         time_delta=7,
-        max_results_per_time_delta=10,
+        max_results_per_time_delta=max_results,
     )
 
     list_of_vid_lists = list(vid_list_basic_info_generator)
     assert len(list_of_vid_lists) == 1
-    assert len(list_of_vid_lists[0]) == 10
-    assert isinstance(list_of_vid_lists[0][0], YtVideo)
-
-
-def test_scrape_top_videos_basic_info_when_max_results_5_should_yield_5_element_list(
-    yt_finder,
-):
-    vid_list_basic_info_generator = yt_finder.scrape_top_videos_basic_info(
-        topic="Bitcoin",
-        date_start=datetime.date(2020, 1, 1),
-        date_end=datetime.date(2020, 1, 7),
-        time_delta=7,
-        max_results_per_time_delta=5,
-    )
-
-    list_of_vid_lists = list(vid_list_basic_info_generator)
-    assert len(list_of_vid_lists) == 1
-    assert len(list_of_vid_lists[0]) == 5
+    assert len(list_of_vid_lists[0]) == expected_length
     assert isinstance(list_of_vid_lists[0][0], YtVideo)
 
 
