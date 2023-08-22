@@ -43,10 +43,18 @@ class YtApiStatsScraper(IYtStatsScraper):
         return video_stats
 
 
-# Todo: implement the stats scraper with yt-dlp to save quota on googleapi
 class YtDlpStatsScraper(IYtStatsScraper):
     def __init__(self):
-        pass
+        import yt_dlp as yt
+        self._yt = yt.YoutubeDL()
 
     def scrape_stats(self, video_id: str) -> YtVideoStats:
-        raise NotImplementedError()
+        vid_url = f"https://www.youtube.com/watch?v={video_id}"
+        info_ = self._yt.extract_info(vid_url, download=False)
+
+        return YtVideoStats(
+            views=int(info_["view_count"]),
+            comments=int(info_["comment_count"]),
+            likes=int(info_["like_count"]),
+            length_minutes=info_["duration"] / 60,
+        )
