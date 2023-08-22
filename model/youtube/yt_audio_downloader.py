@@ -1,4 +1,3 @@
-import datetime
 import os
 
 import yt_dlp as yt

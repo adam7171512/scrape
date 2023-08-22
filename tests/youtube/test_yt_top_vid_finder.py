@@ -13,10 +13,13 @@ def yt_finder() -> YtFinder:
     return YtFinder(get_yt_api_keys())
 
 
-@pytest.mark.parametrize("max_results,expected_length", [
-    (10, 10),
-    (5, 5),
-])
+@pytest.mark.parametrize(
+    "max_results,expected_length",
+    [
+        (10, 10),
+        (5, 5),
+    ],
+)
 def test_scrape_top_videos_basic_info(yt_finder, max_results, expected_length):
     vid_list_basic_info_generator = yt_finder.scrape_top_videos_basic_info(
         topic="Bitcoin",
