@@ -9,6 +9,8 @@ from model.sentiment_analysis.core import ISentimentRater
 from model.sentiment_analysis.sentiment_gpt import GptSentimentRater
 from model.sentiment_analysis.sentiment_roberta import RobertaSentimentRater
 from model.youtube.core import IYtStatsScraper, IYtTopVideoFinder, IYtTranscriptScraper
+from model.youtube.sentiment_filler import SentimentFiller
+from model.youtube.transcript_filler import TranscriptFiller
 from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_transcript_scraper import YtDlpTranscriptScraper, YtWhisperTranscriptScraper, \
@@ -107,3 +109,15 @@ def create_scraping_pipeline() -> IYtVidScrapingPipeline:
             create_transcript_scraper(),
             create_sentiment_rater(),
         )
+
+
+def create_transcript_filler() -> TranscriptFiller:
+    return TranscriptFiller(create_transcript_scraper(), create_video_repository())
+
+
+def create_sentiment_filler() -> SentimentFiller:
+    return SentimentFiller(
+        create_sentiment_rater(),
+        create_video_repository(),
+        config["overwrite_existing_data"]
+    )
