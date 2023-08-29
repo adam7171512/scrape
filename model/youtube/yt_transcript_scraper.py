@@ -1,14 +1,8 @@
 from typing import Protocol
 
-from model.youtube.core import YtVideo, get_url_for_vid_id
+from model.youtube.core import YtVideo, get_url_for_vid_id, IYtTranscriptScraper
 from model.youtube.whisper_transcript import WhisperTranscript
 from model.youtube.yt_audio_downloader import YtAudioDownloader
-
-
-class IYtTranscriptScraper(Protocol):
-
-    def scrape_transcript(self, video_id: str) -> str | None:
-        ...
 
 
 class YtWhisperTranscriptScraper(IYtTranscriptScraper):

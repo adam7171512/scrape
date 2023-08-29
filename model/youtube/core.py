@@ -49,3 +49,9 @@ class YtVideo(BaseModel):
 class IYtStatsScraper(Protocol):
     def scrape_stats(self, video_id: str) -> YtVideoStats:
         ...
+
+
+class IYtTranscriptScraper(Protocol):
+
+    def scrape_transcript(self, video_id: str) -> str | None:
+        ...
