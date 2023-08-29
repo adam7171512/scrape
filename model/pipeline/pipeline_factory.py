@@ -15,11 +15,11 @@ from model.youtube.yt_transcript_scraper import YtWhisperTranscriptScraper, YtDl
     ComboYtTranscriptScraper
 
 
-def get_scraper_processor(config: dict) -> IYtVidScrapingPipeline:
+def get_scraper_pipeline(config: dict) -> IYtVidScrapingPipeline:
     scraper_config = config["scraper"]
     db_config = config["db"]
 
-    if scraper_config["repository"] == "mongo":
+    if db_config["repository"] == "mongo":
         repository: IYtVideoRepository = YtVideoRepositoryFactory.mongo_repository(
             db_config["db_name"], db_config["collection_name"]
         )
