@@ -1,4 +1,4 @@
-from gpt_tools.tools import GptContact
+from model.gpt_tools.tools import GptContact
 from model.sentiment_analysis.core import GptRating, ISentimentRater
 
 
