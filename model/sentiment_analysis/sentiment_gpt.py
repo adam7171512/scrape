@@ -3,6 +3,11 @@ from model.sentiment_analysis.core import GptRating, ISentimentRater
 
 
 class GptSentimentRater(ISentimentRater):
+    """
+    Openai-gpt based sentiment rater implementation. Depends on the GptContact class that encapsulates
+    openai api calls and preprocessing input (limiting tokens etc)
+    """
+
     # Todo: move to config
     MODEL = f"gpt-4"
     SYSTEM_MESSAGE = """

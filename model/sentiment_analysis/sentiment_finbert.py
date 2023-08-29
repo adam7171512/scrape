@@ -5,13 +5,15 @@ from transformers import (AutoConfig, AutoModelForSequenceClassification,
 
 from model.sentiment_analysis.core import ISentimentRater, SplitScoreRating
 
-"""
-Warning! FinBert is likely bad option for rating youtube-title-like text sentiment
-rating, as it was trained on more official financial text
-"""
 
 
 class FinbertSentimentRater(ISentimentRater):
+    """
+    Sentiment rater implementation based on FinBert model. Suitable only for short text.
+    Warning! FinBert is likely bad option for rating youtube-title-like text sentiment
+    rating, as it was trained on more official financial text
+    """
+
     MODEL = f"ProsusAI/finbert"
 
     def __init__(self):

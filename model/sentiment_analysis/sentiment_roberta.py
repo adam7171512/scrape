@@ -8,6 +8,10 @@ from model.youtube.persistence.mongo import YtVideoMongoRepository
 
 
 class RobertaSentimentRater(ISentimentRater):
+    """
+    Sentiment rater implementation based on Roberta model. Suitable only for rating short text.
+    """
+
     MODEL = f"cardiffnlp/twitter-roberta-base-sentiment"
 
     def __init__(self, repository: YtVideoMongoRepository | None = None):
