@@ -1,8 +1,8 @@
 from config_data_provider import get_scraper_config, get_open_ai_api_key, get_yt_api_keys, get_db_config
 from model.sentiment_analysis.sentiment_gpt import GptSentimentRater
 from model.sentiment_analysis.sentiment_roberta import RobertaSentimentRater
-from model.youtube.persistence.core import IYtVideoRepository
-from model.youtube.persistence.factory import YtVideoRepositoryFactory
+from model.persistence import IYtVideoRepository
+from model.persistence import YtVideoRepositoryFactory
 from model.youtube.processing.batch_processor import YtVidScrapingBatchProcessor
 from model.youtube.processing.core import IYtVidScrapingProcessor
 from model.youtube.processing.serial_processor import YtVidScrapingSerialProcessor

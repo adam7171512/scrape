@@ -4,7 +4,7 @@ from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
 
 from model.sentiment_analysis.core import ISentimentRater, SplitScoreRating
-from model.youtube.persistence.mongo import YtVideoMongoRepository
+from model.persistence import YtVideoMongoRepository
 
 
 class RobertaSentimentRater(ISentimentRater):

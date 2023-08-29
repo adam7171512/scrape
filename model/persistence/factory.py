@@ -1,5 +1,5 @@
-from model.youtube.persistence.core import IYtVideoRepository
-from model.youtube.persistence.mongo import YtVideoMongoRepository
+from model.persistence.core import IYtVideoRepository
+from model.persistence.mongo import YtVideoMongoRepository
 
 
 class YtVideoRepositoryFactory:

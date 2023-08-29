@@ -3,7 +3,7 @@ from datetime import datetime
 from pymongo.collection import Collection
 
 from model.youtube.core import YtVideo
-from model.youtube.persistence.core import IYtVideoRepository
+from model.persistence.core import IYtVideoRepository
 
 
 class YtVideoMongoRepository(IYtVideoRepository):

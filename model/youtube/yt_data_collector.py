@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from model.youtube.core import IYtTranscriptScraper
-from model.youtube.persistence.core import IYtVideoRepository
+from model.persistence import IYtVideoRepository
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 
 
