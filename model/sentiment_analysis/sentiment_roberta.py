@@ -3,8 +3,8 @@ from scipy.special import softmax
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
 
+from model.persistence.core import IYtVideoRepository
 from model.sentiment_analysis.core import ISentimentRater, SplitScoreRating
-from model.persistence import YtVideoMongoRepository
 
 
 class RobertaSentimentRater(ISentimentRater):
@@ -14,7 +14,7 @@ class RobertaSentimentRater(ISentimentRater):
 
     MODEL = f"cardiffnlp/twitter-roberta-base-sentiment"
 
-    def __init__(self, repository: YtVideoMongoRepository | None = None):
+    def __init__(self, repository: IYtVideoRepository | None = None):
         self.model = AutoModelForSequenceClassification.from_pretrained(self.MODEL)
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL)
         self.config = AutoConfig.from_pretrained(self.MODEL)
