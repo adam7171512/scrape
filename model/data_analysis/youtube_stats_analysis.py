@@ -40,9 +40,9 @@ class BtcYoutubeSentimentAnalysis:
         df["views"] = df["views"].ewm(alpha=0.2).mean()
         df["likes"] = df["likes"].ewm(alpha=0.2).mean()
         df["comments"] = df["comments"].ewm(alpha=0.2).mean()
-        df["sent_impact"] = df["sent_impact"].ewm(alpha=0.2).mean()
+        df["sent_ema"] = df["sent_impact"].ewm(alpha=0.2).mean()
 
-        df = df.loc[:, ["views", "sent_impact"]]
+        df = df.loc[:, ["views", "sent_ema"]]
 
         btc_usd = self._prepare_btc_df()
 
@@ -103,9 +103,9 @@ class BtcYoutubeSentimentAnalysis:
 
         ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
         ax2.set_ylabel(
-            "sentiment impact", color="tab:blue"
+            "sentiment ema", color="tab:blue"
         )  # we already handled the x-label with ax1
-        ax2.bar(df.index, df["sent_impact"], color="tab:blue")
+        ax2.bar(df.index, df["sent_ema"], color="tab:blue")
         # make bars wider
         for patch in ax2.patches:
             patch.set_width(7)
