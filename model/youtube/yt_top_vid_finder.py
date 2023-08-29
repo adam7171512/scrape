@@ -47,14 +47,16 @@ class YtTopVideoFinder:
             developerKey=api_key,
         )
 
-    def scrape_top_videos_basic_info(
-        self,
-        topic: str,
-        date_start: datetime.date,
-        date_end: datetime.date,
-        time_delta: int,
-        max_results_per_time_delta: int = 10,
-        language: str = None,
+    def scrape_top_videos_with_stats(
+            self,
+            topic: str,
+            date_start: datetime.date,
+            date_end: datetime.date,
+            time_delta: int,
+            max_results_per_time_delta: int = 10,
+            language: str = None,
+            min_video_length: int = 5,
+            min_views: int | None = None,
     ) -> Generator[list[YtVideo], None, None]:
         """
         Returns a generator of lists of videos, where each list is the top videos for a given time delta
@@ -76,7 +78,7 @@ class YtTopVideoFinder:
 
             parameters = {
                 "part": "snippet",
-                "maxResults": max_results_per_time_delta,
+                "maxResults": 100,
                 "order": "viewCount",
                 "publishedAfter": f"{search_from}T00:00:00Z",
                 "publishedBefore": f"{search_to}T23:59:59Z",
@@ -98,8 +100,29 @@ class YtTopVideoFinder:
                     for item in items
                     if item.get("id").get("kind") == "youtube#video"
                 ]
-                yield search_results
 
+                filtered_batch = []
+
+                for vid in search_results:
+                    stats = self.scrape_video_stats(vid)
+
+                    if len(filtered_batch) >= max_results_per_time_delta:
+                        break
+                    meets_criteria = False
+
+                    if min_views:
+                        meets_criteria = stats.views and stats.views >= min_views
+
+                    if min_video_length:
+                        meets_criteria = stats.length_minutes and stats.length_minutes >= min_video_length
+
+                    if meets_criteria:
+                        vid.stats = stats
+                        filtered_batch.append(vid)
+
+                yield filtered_batch
+
+            # Todo: add more specific exception handling
             except Exception as e:
                 print(f"Exception: {e}")
 
@@ -157,42 +180,3 @@ class YtTopVideoFinder:
                 return self.scrape_video_stats(video)
             else:
                 raise e
-
-    # returns generator of lists of videos
-    def scrape_top_videos_with_stats(
-        self,
-        topic: str,
-        date_start: datetime.date,
-        date_end: datetime.date,
-        time_delta: int,
-        max_results_per_time_delta: int = 10,
-        language: str = None,
-        stats_lower_limit: int | None = None,
-        length_minutes_lower_limit: int | None = None,
-    ) -> Generator[list[YtVideo], None, None]:
-        for yt_videos in self.scrape_top_videos_basic_info(
-            topic,
-            date_start,
-            date_end,
-            time_delta,
-            max_results_per_time_delta,
-            language,
-        ):
-            vids = []
-            for yt_video in yt_videos:
-                yt_video.stats = self.scrape_video_stats(yt_video)
-
-                meets_criteria = True
-                if (
-                    length_minutes_lower_limit
-                    and yt_video.stats.length_minutes < length_minutes_lower_limit
-                ):
-                    meets_criteria = False
-
-                if stats_lower_limit and yt_video.stats.views < stats_lower_limit:
-                    meets_criteria = False
-
-                if meets_criteria:
-                    vids.append(yt_video)
-
-            yield vids

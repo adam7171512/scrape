@@ -13,47 +13,6 @@ def yt_finder() -> YtTopVideoFinder:
     return YtTopVideoFinder(get_yt_api_keys())
 
 
-@pytest.mark.parametrize(
-    "max_results,expected_length",
-    [
-        (10, 10),
-        (5, 5),
-    ],
-)
-def test_scrape_top_videos_basic_info(yt_finder, max_results, expected_length):
-    vid_list_basic_info_generator = yt_finder.scrape_top_videos_basic_info(
-        topic="Bitcoin",
-        date_start=datetime.date(2020, 1, 1),
-        date_end=datetime.date(2020, 1, 7),
-        time_delta=7,
-        max_results_per_time_delta=max_results,
-    )
-
-    list_of_vid_lists = list(vid_list_basic_info_generator)
-    assert len(list_of_vid_lists) == 1
-    assert len(list_of_vid_lists[0]) == expected_length
-    assert isinstance(list_of_vid_lists[0][0], YtVideo)
-
-
-def test_scrape_top_videos_basic_info_when_two_time_partitions_should_yield_2_lists(
-    yt_finder,
-):
-    vid_list_basic_info_generator = yt_finder.scrape_top_videos_basic_info(
-        topic="Bitcoin",
-        date_start=datetime.date(2020, 1, 1),
-        date_end=datetime.date(2020, 1, 14),
-        time_delta=7,
-        max_results_per_time_delta=5,
-    )
-
-    list_of_vid_lists = list(vid_list_basic_info_generator)
-    assert len(list_of_vid_lists) == 2
-    assert len(list_of_vid_lists[0]) == 5
-    assert len(list_of_vid_lists[1]) == 5
-    assert isinstance(list_of_vid_lists[0][0], YtVideo)
-    assert isinstance(list_of_vid_lists[1][0], YtVideo)
-
-
 def test_scrape_top_videos_with_stats_should_yield_list_of_videos_with_stats(yt_finder):
     vid_list_full_info_generator = yt_finder.scrape_top_videos_with_stats(
         topic="Bitcoin",
@@ -72,7 +31,7 @@ def test_scrape_top_videos_with_stats_should_yield_list_of_videos_with_stats(yt_
 
 
 def test_scrape_top_videos_when_quota_reached_should_switch_api_keys_then_raise(
-    yt_finder,
+        yt_finder,
 ):
     mock_api_client = mock()
 
@@ -87,7 +46,7 @@ def test_scrape_top_videos_when_quota_reached_should_switch_api_keys_then_raise(
 
     with pytest.raises(Exception, match="quota limit reached"):
         list(
-            yt_finder.scrape_top_videos_basic_info(
+            yt_finder.scrape_top_videos_with_stats(
                 topic="Bitcoin",
                 date_start=datetime.date(2020, 1, 1),
                 date_end=datetime.date(2020, 1, 14),
