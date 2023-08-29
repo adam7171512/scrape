@@ -3,10 +3,10 @@ from model.persistence.core import IYtVideoRepository
 from model.persistence.factory import YtVideoRepositoryFactory
 from model.sentiment_analysis.sentiment_gpt import GptSentimentRater
 from model.sentiment_analysis.sentiment_roberta import RobertaSentimentRater
-from model.youtube.processing.batch_pipeline import YtVidScrapingBatchPipeline
-from model.youtube.processing.core import IYtVidScrapingPipeline
-from model.youtube.processing.serial_pipeline import YtVidScrapingSerialPipeline
-from model.youtube.processing.std_pipeline import YtVidScrapingStdPipeline
+from model.pipeline.batch_pipeline import YtVidScrapingBatchPipeline
+from model.pipeline.core import IYtVidScrapingPipeline
+from model.pipeline.serial_pipeline import YtVidScrapingSerialPipeline
+from model.pipeline.std_pipeline import YtVidScrapingStdPipeline
 from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_stats_scraper import YtDlpStatsScraper, YtApiStatsScraper

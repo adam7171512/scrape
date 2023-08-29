@@ -1,6 +1,6 @@
 import datetime
 
-from model.youtube.processing.pipeline_factory import get_scraper_processor
+from model.pipeline.pipeline_factory import get_scraper_processor
 
 
 def test_get_scraper_processor():
