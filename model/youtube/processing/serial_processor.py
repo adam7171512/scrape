@@ -1,9 +1,9 @@
 import datetime
 import logging
 
+from model.persistence.core import IYtVideoRepository
 from model.sentiment_analysis.core import ISentimentRater
 from model.youtube.core import YtVideo, YoutubeVideoSentimentRating
-from model.persistence import IYtVideoRepository
 from model.youtube.processing.core import IYtVidScrapingProcessor
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import IYtTranscriptScraper
