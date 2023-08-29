@@ -15,10 +15,10 @@ class YoutubeVideoSentimentRating(BaseModel):
 
 
 class YtVideoStats(BaseModel):
-    views: int = None
-    comments: int = None
-    likes: int = None
-    length_minutes: float = None
+    views: int | None = None
+    comments: int | None = None
+    likes: int | None = None
+    length_minutes: float | None = None
     sentiment_rating: YoutubeVideoSentimentRating | None = None
 
 

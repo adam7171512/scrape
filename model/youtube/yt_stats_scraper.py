@@ -60,9 +60,15 @@ class YtDlpStatsScraper(IYtStatsScraper):
         vid_url = get_url_for_vid_id(video_id)
         info_ = self._yt.extract_info(vid_url, download=False)
 
+        view_count = info_.get("view_count", None)
+        comments = info_.get("comment_count", None)
+        likes = info_.get("likes", None)
+        length_minutes = info_.get("duration", None)
+        length_minutes = int(length_minutes) / 60 if length_minutes else None
+
         return YtVideoStats(
-            views=int(info_["view_count"]),
-            comments=int(info_["comment_count"]),
-            likes=int(info_["like_count"]),
-            length_minutes=info_["duration"] / 60,
+            views=view_count,
+            comments=comments,
+            likes=likes,
+            length_minutes=length_minutes
         )
