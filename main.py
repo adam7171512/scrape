@@ -1,19 +1,20 @@
 import datetime
 
-import config_data_provider
-from model.pipeline.pipeline_factory import get_scraping_pipeline
-
+import model.factories
+from model.data_analysis.youtube_stats_analysis import create_btc_price_sentiment_analysis
 
 if __name__ == "__main__":
-    config = config_data_provider.get_config()
-    pipeline = get_scraping_pipeline(config)
+    pipeline = model.factories.create_scraping_pipeline()
 
     # yt data collection
 
     pipeline.process(
         topic="Bitcoin",
-        date_start=datetime.date(2023, 1, 1),
-        date_end=datetime.date(2023, 2, 1),
+        date_start=datetime.date(2020, 8, 1),
+        date_end=datetime.date(2023, 1, 1),
         time_delta=7,
-        max_results_per_time_delta=3,
+        max_results_per_time_delta=5,
     )
+
+    yt_btc_price_analysis = create_btc_price_sentiment_analysis()
+    yt_btc_price_analysis.plot()
