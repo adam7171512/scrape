@@ -16,7 +16,7 @@ class YtWhisperTranscriptScraper(IYtTranscriptScraper):
         return self._whisper.transcribe(self._yt_audio_downloader.download(video_id))
 
 
-class YtYtDlpTranscriptScraper(IYtTranscriptScraper):
+class YtDlpTranscriptScraper(IYtTranscriptScraper):
     def __init__(self, include_auto_captions: bool = True):
         self._include_auto_captions = include_auto_captions
         import yt_dlp as yt

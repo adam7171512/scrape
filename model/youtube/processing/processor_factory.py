@@ -10,7 +10,7 @@ from model.youtube.whisper_transcript import WhisperTranscript
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_stats_scraper import YtDlpStatsScraper, YtApiStatsScraper
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
-from model.youtube.yt_transcript_scraper import YtWhisperTranscriptScraper, YtYtDlpTranscriptScraper
+from model.youtube.yt_transcript_scraper import YtWhisperTranscriptScraper, YtDlpTranscriptScraper
 
 scraper_config = get_scraper_config()
 db_config = get_db_config(scraper_config["repository"])
@@ -32,7 +32,7 @@ def get_scraper_processor() -> IYtVidScrapingProcessor:
             YtAudioDownloader(),
         )
     elif scraper_config["transcript_scraper"] == "yt-dlp":
-        transcript_scraper = YtYtDlpTranscriptScraper()
+        transcript_scraper = YtDlpTranscriptScraper()
     else:
         raise Exception("Invalid transcript scraper type")
 

@@ -5,7 +5,7 @@ from model.youtube.whisper_transcript import WhisperTranscript
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_transcript_scraper import (
     YtWhisperTranscriptScraper,
-    YtYtDlpTranscriptScraper)
+    YtDlpTranscriptScraper)
 
 
 class TranscriptFiller:
@@ -58,5 +58,5 @@ def create_ytdlp_transcript_filler(db_name, collection_name):
     db = client[db_name]
     collection = db[collection_name]
     yt_repository = YtVideoMongoRepository(collection)
-    transcript_scraper = YtYtDlpTranscriptScraper()
+    transcript_scraper = YtDlpTranscriptScraper()
     return TranscriptFiller(transcript_scraper, yt_repository)
