@@ -17,7 +17,7 @@ class TranscriptFiller:
         self.yt_repository = yt_repository
 
     def fill_transcript(self, video: YtVideo) -> None:
-        text = self.yt_transcript_scraper.scrape(video)
+        text = self.yt_transcript_scraper.scrape_transcript(video)
         video.transcript = text
         self.yt_repository.update_if_exists(video)
 

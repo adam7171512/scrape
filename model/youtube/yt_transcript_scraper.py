@@ -6,7 +6,7 @@ from model.youtube.yt_audio_downloader import YtAudioDownloader
 
 
 class IYtTranscriptScraper(Protocol):
-    def scrape(self, video: YtVideo) -> str:
+    def scrape_transcript(self, video: YtVideo) -> str:
         ...
 
 
@@ -17,18 +17,20 @@ class YtWhisperTranscriptScraper(IYtTranscriptScraper):
         self.whisper = whisper
         self.yt_audio_downloader = yt_audio_downloader
 
-    def scrape(self, video: YtVideo) -> str:
+    def scrape_transcript(self, video: YtVideo) -> str:
         return self.whisper.transcribe(self.yt_audio_downloader.download(video))
 
 
 class YtYtDlpTranscriptScraper(IYtTranscriptScraper):
-    def __init__(self):
+    def __init__(self, include_auto_captions: bool = True):
+        self.include_auto_captions = include_auto_captions
         import yt_dlp as yt
 
         self.yt = yt.YoutubeDL()
 
     def scrape_from_url(
-        self, url: str, include_auto_captions: bool = True
+        self,
+        url: str,
     ) -> str | None:
         import requests
 
@@ -40,15 +42,15 @@ class YtYtDlpTranscriptScraper(IYtTranscriptScraper):
             if captions:
                 for sub in captions:
                     if sub["ext"] == "vtt":
-                        r = requests.get(sub["url"], allow_redirects=True)
-                        return self._process_sub_request(r.text)
-            elif include_auto_captions:
+                        response = requests.get(sub["url"], allow_redirects=True)
+                        return self._process_sub_request_response(response.text)
+            elif self.include_auto_captions:
                 # automatic captions
                 captions = info_.get("automatic_captions", {}).get("en", None)
                 for sub in captions:
                     if sub["ext"] == "vtt":
-                        r = requests.get(sub["url"], allow_redirects=True)
-                        return self._process_sub_request_automatic_captions(r.text)
+                        response = requests.get(sub["url"], allow_redirects=True)
+                        return self._process_sub_request_response_automatic_captions(response.text)
             else:
                 return None
 
@@ -56,25 +58,26 @@ class YtYtDlpTranscriptScraper(IYtTranscriptScraper):
             print("Error scraping transcript" + str(e))
             return None
 
-    def scrape(self, video: YtVideo, include_auto_captions: bool = True) -> str:
-        return self.scrape_from_url(video.url, include_auto_captions)
+    def scrape_transcript(self, video: YtVideo) -> str:
+        return self.scrape_from_url(video.url)
 
-    def _process_sub_request(self, req):
+    def _process_sub_request_response(self, text: str) -> str:
         import re
 
-        lines = req.split("\n")
+        lines = text.split("\n")
 
         # pattern for timestamps
         pattern = re.compile(r"^\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}$")
 
-        # find the first line with a timestamp
+        start_line = None
+
         for i, line in enumerate(lines):
             if pattern.match(line):
                 start_line = i
                 break
 
         # use only the lines starting from the first timestamp
-        lines = lines[start_line:]
+        lines = lines[start_line:] if start_line else []
 
         # remove lines with timestamps, empty lines, and "&nbsp;"
         lines = [
@@ -83,7 +86,6 @@ class YtYtDlpTranscriptScraper(IYtTranscriptScraper):
             if not pattern.match(line) and line.strip()
         ]
 
-        # Join the lines
         text = " ".join(lines)
 
         # remove any multiple white spaces
@@ -91,7 +93,7 @@ class YtYtDlpTranscriptScraper(IYtTranscriptScraper):
 
         return text
 
-    def _process_sub_request_automatic_captions(self, text):
+    def _process_sub_request_response_automatic_captions(self, text: str) -> str:
         import re
 
         # pattern for text inside <c>...</c> tags

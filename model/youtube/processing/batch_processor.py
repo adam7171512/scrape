@@ -90,7 +90,7 @@ class YtVidScrapingBatchProcessor(IYtVidScrapingProcessor):
         for video in videos:
             transcript = video.transcript
             if transcript is None:
-                transcript = self.transcript_scraper.scrape(video)
+                transcript = self.transcript_scraper.scrape_transcript(video)
 
             video.transcript = transcript
         self._update_videos_in_database(videos)
