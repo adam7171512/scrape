@@ -28,7 +28,7 @@ class YtDlpTranscriptScraper(IYtTranscriptScraper):
     Warning! Sometimes the auto captions are VERY bad and limited
     """
 
-    def __init__(self, include_auto_captions: bool = False):
+    def __init__(self, include_auto_captions: bool = True):
         self._include_auto_captions = include_auto_captions
         import yt_dlp as yt
 
