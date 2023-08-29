@@ -10,8 +10,9 @@ class YtWhisperTranscriptScraper(IYtTranscriptScraper):
     Class responsible for extracting video transcript.
     It depends on the whisper transcript extractor and on audio downloader.
     """
+
     def __init__(
-        self, whisper: WhisperTranscriptExtractor, yt_audio_downloader: YtAudioDownloader
+            self, whisper: WhisperTranscriptExtractor, yt_audio_downloader: YtAudioDownloader
     ):
         self._whisper = whisper
         self._yt_audio_downloader = yt_audio_downloader
@@ -26,6 +27,7 @@ class YtDlpTranscriptScraper(IYtTranscriptScraper):
     Initializer accepts an auto caption toggle.
     Warning! Sometimes the auto captions are VERY bad and limited
     """
+
     def __init__(self, include_auto_captions: bool = False):
         self._include_auto_captions = include_auto_captions
         import yt_dlp as yt
@@ -106,3 +108,27 @@ class YtDlpTranscriptScraper(IYtTranscriptScraper):
         text = re.sub(" +", " ", text)
 
         return text if text else None
+
+
+class ComboYtTranscriptScraper(IYtTranscriptScraper):
+    """
+    Class responsible for extracting video transcript.
+    It firstly tries to obtain captions using yt-dlp as a cheap method (only manual captions by default),
+    if the captions are not available, then it uses whisper extractor.
+    """
+
+    def __init__(self, whisper_model: str = "base", length_min: int = 5, auto_captions: bool = False):
+        self.scraper = YtWhisperTranscriptScraper(
+            WhisperTranscriptExtractor(whisper_model),
+            YtAudioDownloader(length_min)
+        )
+
+        self.yt_dlp_scraper = YtDlpTranscriptScraper(auto_captions)
+
+    def scrape_transcript(self, video_id: str) -> str | None:
+        transcript = self.yt_dlp_scraper.scrape_transcript(video_id)
+
+        if transcript is None:
+            transcript = self.scraper.scrape_transcript(video_id)
+
+        return transcript
