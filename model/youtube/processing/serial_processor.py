@@ -58,7 +58,7 @@ class YtVidScrapingSerialProcessor(IYtVidScrapingProcessor):
                 self._process_video(video)
 
     def _process_video(self, video: YtVideo):
-        transcript = self.transcript_scraper.scrape_transcript(video)
+        transcript = self.transcript_scraper.scrape_transcript(video.video_id)
         video.transcript = transcript
 
         title_sentiment_rating = self.sentiment_rater.rate(video.title).score

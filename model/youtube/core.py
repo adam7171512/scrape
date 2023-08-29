@@ -4,6 +4,10 @@ from typing import Protocol
 from pydantic import BaseModel
 
 
+def get_url_for_vid_id(vid_id: str) -> str:
+    return f"https://www.youtube.com/watch?v={vid_id}"
+
+
 class YoutubeVideoSentimentRating(BaseModel):
     model: str
     score_title: float
@@ -39,7 +43,7 @@ class YtVideo(BaseModel):
 
     @property
     def url(self):
-        return f"https://www.youtube.com/watch?v={self.video_id}"
+        return get_url_for_vid_id(self.video_id)
 
 
 class IYtStatsScraper(Protocol):

@@ -1,5 +1,4 @@
 from model.youtube.core import YtVideo
-from model.youtube.persistence.mongo import YtMongoRepository
 from model.youtube.whisper_transcript import WhisperTranscript
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_transcript_scraper import (IYtTranscriptScraper,
@@ -11,13 +10,13 @@ class TranscriptFiller:
     def __init__(
         self,
         yt_transcript_scraper: IYtTranscriptScraper,
-        yt_repository: YtMongoRepository,
+        yt_repository: IYtVideoRepository,
     ):
         self.yt_transcript_scraper = yt_transcript_scraper
         self.yt_repository = yt_repository
 
     def fill_transcript(self, video: YtVideo) -> None:
-        text = self.yt_transcript_scraper.scrape_transcript(video)
+        text = self.yt_transcript_scraper.scrape_transcript(video.video_id)
         video.transcript = text
         self.yt_repository.update_if_exists(video)
 

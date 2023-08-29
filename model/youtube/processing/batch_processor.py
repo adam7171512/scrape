@@ -65,7 +65,6 @@ class YtVidScrapingBatchProcessor(IYtVidScrapingProcessor):
         self.scrape_transcripts(vids)
         self.rate_sentiments(vids)
 
-
     def _add_videos_to_database(self, videos: list[YtVideo]):
         vids = []
         if self.overwrite_existing_data:
@@ -90,7 +89,7 @@ class YtVidScrapingBatchProcessor(IYtVidScrapingProcessor):
         for video in videos:
             transcript = video.transcript
             if transcript is None:
-                transcript = self.transcript_scraper.scrape_transcript(video)
+                transcript = self.transcript_scraper.scrape_transcript(video.video_id)
 
             video.transcript = transcript
         self._update_videos_in_database(videos)
@@ -122,7 +121,6 @@ class YtVidScrapingBatchProcessor(IYtVidScrapingProcessor):
             )
             video.stats.sentiment_rating = sentiment_rating
         self._update_videos_in_database(videos)
-
 
     def _save_video(self, video: YtVideo):
         added = self.repository.add_if_doesnt_exist(video)

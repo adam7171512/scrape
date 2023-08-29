@@ -2,7 +2,7 @@ import os
 
 import yt_dlp as yt
 
-from model.youtube.core import YtVideo
+from model.youtube.core import YtVideo, get_url_for_vid_id
 
 
 class YtAudioDownloader:
@@ -36,23 +36,23 @@ class YtAudioDownloader:
         self._downloaded_files = []
 
     # returns path to downloaded file
-    def download(self, video: YtVideo) -> str:
-        url = video.url
-        print(f"downloading {url}")
-        self._ytdl.download([url])
+    def download(self, video_id: str) -> str:
+        url_str = get_url_for_vid_id(video_id)
+        print(f"downloading {url_str}")
+        self._ytdl.download([url_str])
 
         # if short, then cut the audio to first 5 minutes
         if self._length_min:
             l_min = str(self._length_min).zfill(2)
             os.system(
-                f"ffmpeg -i ./{video.video_id}.wav -ss 00:00:00 -to 00:{l_min}:00 -c copy ./{video.video_id}_short.wav"
+                f"ffmpeg -i ./{video_id}.wav -ss 00:00:00 -to 00:{l_min}:00 -c copy ./{video_id}_short.wav"
             )
-            os.remove(f"./{video.video_id}.wav")
-            os.rename(f"./{video.video_id}_short.wav", f"./{video.video_id}.wav")
+            os.remove(f"./{video_id}.wav")
+            os.rename(f"./{video_id}_short.wav", f"./{video_id}.wav")
 
-        self._downloaded_files.append(f"{video.video_id}.wav")
+        self._downloaded_files.append(f"{video_id}.wav")
 
         # full path :
-        path = f"{os.getcwd()}/{video.video_id}.wav"
+        path = f"{os.getcwd()}/{video_id}.wav"
         print(path)
         return path
