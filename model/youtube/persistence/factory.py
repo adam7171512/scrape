@@ -2,7 +2,7 @@ from model.youtube.persistence.core import IYtVideoRepository
 from model.youtube.persistence.mongo import YtVideoMongoRepository
 
 
-class YtRepositoryFactory:
+class YtVideoRepositoryFactory:
     @staticmethod
     def mongo_repository(db_name: str, collection_name: str) -> IYtVideoRepository:
         import pymongo

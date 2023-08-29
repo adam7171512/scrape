@@ -2,7 +2,7 @@ from config_data_provider import get_scraper_config, get_open_ai_api_key, get_yt
 from model.sentiment_analysis.sentiment_gpt import GptSentimentRater
 from model.sentiment_analysis.sentiment_roberta import RobertaSentimentRater
 from model.youtube.persistence.core import IYtVideoRepository
-from model.youtube.persistence.factory import YtRepositoryFactory
+from model.youtube.persistence.factory import YtVideoRepositoryFactory
 from model.youtube.processing.batch_processor import YtVidScrapingBatchProcessor
 from model.youtube.processing.core import IYtVidScrapingProcessor
 from model.youtube.processing.serial_processor import YtVidScrapingSerialProcessor
@@ -19,7 +19,7 @@ db_config = get_db_config(scraper_config["repository"])
 def get_scraper_processor() -> IYtVidScrapingProcessor:
 
     if scraper_config["repository"] == "mongo":
-        repository: IYtVideoRepository = YtRepositoryFactory.mongo_repository(
+        repository: IYtVideoRepository = YtVideoRepositoryFactory.mongo_repository(
             db_config["db_name"], db_config["collection_name"]
         )
     else:
