@@ -29,7 +29,8 @@ This project is a tool designed to scrape and analyze YouTube content data. Belo
 
 As an example, simple sentiment analysis youtube's videos sentiment towards Bitcoin in time, with price overlay:
 
-![myplot](https://github.com/adam7171512/scrape/assets/117537530/59684e2b-4591-4944-9bdb-e4db747e0c49)
+![myplot](https://github.com/adam7171512/scrape/assets/117537530/76b928c2-3ca2-458b-af03-e99583ff90fa)
+
 
 ## Configuration File:
 
