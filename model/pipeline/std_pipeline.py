@@ -3,7 +3,7 @@ import logging
 
 from model.persistence.core import IYtVideoRepository
 from model.sentiment_analysis.core import ISentimentRater
-from model.youtube.core import YtVideo, YoutubeVideoSentimentRating
+from model.youtube.core import YtVideo, YoutubeVideoSentimentRating, IYtTopVideoFinder
 from model.pipeline.core import IYtVidScrapingPipeline
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import IYtTranscriptScraper
@@ -23,7 +23,7 @@ class YtVidScrapingStdPipeline(IYtVidScrapingPipeline):
 
     def __init__(self,
                  repository: IYtVideoRepository,
-                 yt_finder: YtTopVideoFinder,
+                 yt_finder: IYtTopVideoFinder,
                  transcript_scraper: IYtTranscriptScraper,
                  sentiment_rater: ISentimentRater,
                  overwrite_existing_data: bool,

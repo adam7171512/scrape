@@ -4,11 +4,11 @@ from typing import Any, Generator
 
 from googleapiclient.discovery import build
 
-from model.youtube.core import IYtStatsScraper, YtVideo, YtVideoStats
+from model.youtube.core import IYtStatsScraper, YtVideo, YtVideoStats, IYtTopVideoFinder
 from model.youtube.yt_stats_scraper import YtApiStatsScraper
 
 
-class YtTopVideoFinder:
+class YtTopVideoFinder(IYtTopVideoFinder):
     """
        A class that finds top yt videos and their stats for specified parameters.
        Class handles multiple yt data api keys and after exhausting quota jumps to next one.

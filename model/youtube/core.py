@@ -46,6 +46,22 @@ class YtVideo(BaseModel):
         return get_url_for_vid_id(self.video_id)
 
 
+class IYtTopVideoFinder(Protocol):
+
+    def scrape_top_videos_with_stats(
+            self,
+            topic: str,
+            date_start: datetime.date,
+            date_end: datetime.date,
+            time_delta: int,
+            max_results_per_time_delta: int = 10,
+            language: str = "en",
+            min_views: int | None = None,
+            min_video_length: int = 5,
+    ) -> list[list[YtVideo]]:
+        ...
+
+
 class IYtStatsScraper(Protocol):
     def scrape_stats(self, video_id: str) -> YtVideoStats:
         ...
