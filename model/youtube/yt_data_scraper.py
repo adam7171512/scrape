@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from model.youtube.persistence.mongo import YtMongoRepository
+from model.youtube.persistence.core import IYtVideoRepository
 from model.youtube.yt_top_vid_finder import YtFinder
 
 
 class YtScraper:
-    def __init__(self, repository: YtMongoRepository, vid_finder: YtFinder):
+    def __init__(self, repository: IYtVideoRepository, vid_finder: YtFinder):
         self.repository = repository
         self.vid_finder = vid_finder
 
