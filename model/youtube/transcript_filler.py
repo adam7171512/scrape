@@ -1,11 +1,12 @@
+from model.persistence.core import IYtVideoRepository
+from model.persistence.factory import YtVideoRepositoryFactory
+from model.persistence.mongo import YtVideoMongoRepository
 from model.youtube.core import YtVideo, IYtTranscriptScraper
-from model.persistence import IYtVideoRepository
-from model.persistence import YtVideoMongoRepository
 from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_transcript_scraper import (
     YtWhisperTranscriptScraper,
-    YtDlpTranscriptScraper)
+    YtDlpTranscriptScraper, ComboYtTranscriptScraper)
 
 
 class TranscriptFiller:
@@ -35,28 +36,28 @@ class TranscriptFiller:
                 self.fill_transcript(vid)
 
 
-# Todo: replace fixed urls with config
-def create_whisper_transcript_filler(
-        db_name, collection_name, model_size: str = "medium"
-):
-    import pymongo
+def create_transcript_filler(config: dict):
+    scraper_config = config["scraper"]
+    db_config = config["db"]
 
-    client = pymongo.MongoClient("mongodb://localhost:27017")
-    db = client[db_name]
-    collection = db[collection_name]
-    yt_repository = YtVideoMongoRepository(collection)
-    whisper_ = WhisperTranscriptExtractor(model=model_size)
-    yt_audio_downloader = YtAudioDownloader(length_min=7)
-    transcript_scraper = YtWhisperTranscriptScraper(whisper_, yt_audio_downloader)
-    return TranscriptFiller(transcript_scraper, yt_repository)
+    if db_config["repository"] == "mongo":
+        repository: IYtVideoRepository = YtVideoRepositoryFactory.mongo_repository(
+            db_config["db_name"], db_config["collection_name"]
+        )
+    else:
+        raise Exception("Invalid repository type")
+    if scraper_config["transcript_scraper"] == "combo":
+        transcript_scraper = ComboYtTranscriptScraper()
+    elif scraper_config["transcript_scraper"] == "whisper":
+        whisper = WhisperTranscriptExtractor()
+        transcript_scraper = YtWhisperTranscriptScraper(
+            whisper,
+            YtAudioDownloader(),
+        )
+    elif scraper_config["transcript_scraper"] == "yt-dlp":
+        transcript_scraper = YtDlpTranscriptScraper()
+    else:
+        raise Exception("Invalid transcript scraper type")
 
+    return TranscriptFiller(transcript_scraper, repository)
 
-def create_ytdlp_transcript_filler(db_name, collection_name):
-    import pymongo
-
-    client = pymongo.MongoClient("mongodb://localhost:27017")
-    db = client[db_name]
-    collection = db[collection_name]
-    yt_repository = YtVideoMongoRepository(collection)
-    transcript_scraper = YtDlpTranscriptScraper()
-    return TranscriptFiller(transcript_scraper, yt_repository)
