@@ -8,10 +8,16 @@ from model.youtube.core import IYtStatsScraper, YtVideo, YtVideoStats
 from model.youtube.yt_stats_scraper import YtApiStatsScraper
 
 
-class YtFinder:
+class YtTopVideoFinder:
     """
-    Todo: remove the key handling responsibility from this class
-    """
+       A class that finds top yt videos and their stats for specified parameters.
+       Class handles multiple yt data api keys and after exhausting quota jumps to next one.
+
+       Initializer accepts list of api keys and optional stats scraper dependency.
+       If stats scraper is not provided, it creates the stats scraper using yt data api, using keys
+       """
+
+    # Todo: remove the key handling responsibility from this class
 
     API_SERVICE_NAME = "youtube"
     API_VERSION = "v3"

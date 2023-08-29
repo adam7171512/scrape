@@ -9,7 +9,7 @@ from model.youtube.processing.serial_processor import YtVidScrapingSerialProcess
 from model.youtube.whisper_transcript import WhisperTranscript
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_stats_scraper import YtDlpStatsScraper, YtApiStatsScraper
-from model.youtube.yt_top_vid_finder import YtFinder
+from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import YtWhisperTranscriptScraper, YtYtDlpTranscriptScraper
 
 scraper_config = get_scraper_config()
@@ -53,7 +53,7 @@ def get_scraper_processor() -> IYtVidScrapingProcessor:
     elif scraper_config["stats_scraper"] == "ytapi":
         stats_scraper = YtApiStatsScraper()
 
-    yt_finder = YtFinder(get_yt_api_keys(), stats_scraper=stats_scraper)
+    yt_finder = YtTopVideoFinder(get_yt_api_keys(), stats_scraper=stats_scraper)
 
     if scraper_config["pipeline"] == "serial":
         return YtVidScrapingSerialProcessor(

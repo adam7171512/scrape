@@ -5,7 +5,7 @@ from model.sentiment_analysis.core import ISentimentRater
 from model.youtube.core import YtVideo, YoutubeVideoSentimentRating
 from model.youtube.persistence.core import IYtVideoRepository
 from model.youtube.processing.core import IYtVidScrapingProcessor
-from model.youtube.yt_top_vid_finder import YtFinder
+from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import IYtTranscriptScraper
 
 
@@ -21,7 +21,7 @@ class YtVidScrapingSerialProcessor(IYtVidScrapingProcessor):
 
     def __init__(self,
                  repository: IYtVideoRepository,
-                 yt_finder: YtFinder,
+                 yt_finder: YtTopVideoFinder,
                  transcript_scraper: IYtTranscriptScraper,
                  sentiment_rater: ISentimentRater,
                  ):

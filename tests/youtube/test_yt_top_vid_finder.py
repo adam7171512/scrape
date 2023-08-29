@@ -5,12 +5,12 @@ from mockito import any, mock, verify, when
 
 from config_data_provider import get_yt_api_keys
 from model.youtube.core import YtVideo, YtVideoStats
-from model.youtube.yt_top_vid_finder import YtFinder
+from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 
 
 @pytest.fixture(scope="module")
-def yt_finder() -> YtFinder:
-    return YtFinder(get_yt_api_keys())
+def yt_finder() -> YtTopVideoFinder:
+    return YtTopVideoFinder(get_yt_api_keys())
 
 
 @pytest.mark.parametrize(
