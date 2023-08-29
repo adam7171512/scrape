@@ -1,6 +1,6 @@
 import re
 
-from model.youtube.core import IYtStatsScraper, YtVideoStats
+from model.youtube.core import IYtStatsScraper, YtVideoStats, get_url_for_vid_id
 
 
 class YtApiStatsScraper(IYtStatsScraper):
@@ -57,7 +57,7 @@ class YtDlpStatsScraper(IYtStatsScraper):
         self._yt = yt.YoutubeDL()
 
     def scrape_stats(self, video_id: str) -> YtVideoStats:
-        vid_url = f"https://www.youtube.com/watch?v={video_id}"
+        vid_url = get_url_for_vid_id(video_id)
         info_ = self._yt.extract_info(vid_url, download=False)
 
         return YtVideoStats(
