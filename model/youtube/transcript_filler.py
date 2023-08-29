@@ -4,15 +4,22 @@ from model.youtube.persistence.mongo import YtVideoMongoRepository
 from model.youtube.whisper_transcript import WhisperTranscript
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_transcript_scraper import (
-                                                 YtWhisperTranscriptScraper,
-                                                 YtYtDlpTranscriptScraper)
+    YtWhisperTranscriptScraper,
+    YtYtDlpTranscriptScraper)
 
 
 class TranscriptFiller:
+    """
+    Class responsible for filling out missing transcript data for videos in repository
+
+    As the transcript grabbing process can be time-consuming, especially when based on audio processing
+    and text extraction using ml model, it's often better to do this process separately.
+    """
+
     def __init__(
-        self,
-        yt_transcript_scraper: IYtTranscriptScraper,
-        yt_repository: IYtVideoRepository,
+            self,
+            yt_transcript_scraper: IYtTranscriptScraper,
+            yt_repository: IYtVideoRepository,
     ):
         self.yt_transcript_scraper = yt_transcript_scraper
         self.yt_repository = yt_repository
@@ -28,8 +35,9 @@ class TranscriptFiller:
                 self.fill_transcript(vid)
 
 
+# Todo: replace fixed urls with config
 def create_whisper_transcript_filler(
-    db_name, collection_name, model_size: str = "medium"
+        db_name, collection_name, model_size: str = "medium"
 ):
     import pymongo
 
