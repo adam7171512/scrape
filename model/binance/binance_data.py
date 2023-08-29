@@ -1,4 +1,3 @@
-"https://data.binance.vision/data/spot/monthly/klines/ETHUSDC/1m/ETHUSDC-1m-2023-06.zip"
 import logging
 from datetime import date, timedelta
 
@@ -11,7 +10,8 @@ def get_binance_monthly_published_data(
     ticker: str, date_within_month: date, ohlc_interval: str = "15m"
 ) -> pd.DataFrame:
     date_str = date_within_month.strftime("%Y-%m")
-    url = f"https://data.binance.vision/data/spot/monthly/klines/{ticker}/{ohlc_interval}/{ticker}-{ohlc_interval}-{date_str}.zip"
+    url = f"https://data.binance.vision/data/spot/monthly/klines/{ticker}/" \
+          f"{ohlc_interval}/{ticker}-{ohlc_interval}-{date_str}.zip"
     logging.info(f"getting data from {url}")
     df = pd.read_csv(url, compression="zip", header=0, sep=",", quotechar='"')
     logging.info(f"got data from {url}")
@@ -51,8 +51,3 @@ def get_binance_monthly_for_date_range(
     logging.info(f"got data for {ticker} from {date_start} to {date_end}")
     return df
 
-
-df = get_binance_monthly_for_date_range(
-    "LUNAUSDT", date(2018, 1, 1), date(2023, 7, 21), "1m"
-)
-df.to_csv("LUNAUSDT_1min_2017_2023.csv", index=False)
