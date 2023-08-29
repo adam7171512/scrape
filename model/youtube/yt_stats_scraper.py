@@ -26,7 +26,7 @@ class YtApiStatsScraper(IYtStatsScraper):
             minutes = int(matches.group("minutes")) if matches.group("minutes") else 0
             seconds = int(matches.group("seconds")) if matches.group("seconds") else 0
             total_minutes = hours * 60 + minutes + seconds / 60.0
-            return total_minutes
+            return round(total_minutes, 2)
 
         request = self._yt_client.videos().list(
             part="statistics,contentDetails",
@@ -64,7 +64,7 @@ class YtDlpStatsScraper(IYtStatsScraper):
         comments = info_.get("comment_count", None)
         likes = info_.get("likes", None)
         length_minutes = info_.get("duration", None)
-        length_minutes = int(length_minutes) / 60 if length_minutes else None
+        length_minutes = round(int(length_minutes) / 60, 2) if length_minutes else None
 
         return YtVideoStats(
             views=view_count,

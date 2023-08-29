@@ -21,7 +21,7 @@ class GptRating(SentimentRating):
 
     @property
     def score(self) -> float:
-        return self.value
+        return round(self.value, 2)
 
 
 class SplitScoreRating(SentimentRating):
@@ -31,7 +31,7 @@ class SplitScoreRating(SentimentRating):
 
     @property
     def score(self) -> float:
-        return -1 * self.negative + 0 * self.neutral + 1 * self.positive
+        return round(-1 * self.negative + 0 * self.neutral + 1 * self.positive, 2)
 
 
 class ISentimentRater(Protocol):
