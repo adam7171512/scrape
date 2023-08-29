@@ -2,7 +2,7 @@ import datetime
 from typing import Protocol
 
 
-class IYtVidScrapingProcessor(Protocol):
+class IYtVidScrapingPipeline(Protocol):
 
     def process(
             self,

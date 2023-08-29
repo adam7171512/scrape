@@ -3,20 +3,22 @@ import logging
 
 from model.persistence.core import IYtVideoRepository
 from model.sentiment_analysis.core import ISentimentRater
-from model.youtube.core import YtVideo, YoutubeVideoSentimentRating
-from model.youtube.processing.core import IYtVidScrapingProcessor
+from model.youtube.core import YtVideo
+from model.youtube.processing.core import IYtVidScrapingPipeline
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import IYtTranscriptScraper
 
 
-class YtVidScrapingSerialProcessor(IYtVidScrapingProcessor):
+class YtVidScrapingStdPipeline(IYtVidScrapingPipeline):
     """
     This class is responsible for conducting video search on particular topic,
     scraping the video's stats, transcript, and rating the video's sentiment.
     Then it saves the data to the database using repository.
 
-    The processing is done in a serial manner, meaning that the next
-    video is processed only after whole pipeline is done for the previous video.
+    This implementation follows the pipeline:
+    1. Find the videos and their stats
+    2. Scrape the transcript
+    3. Analyse the sentiment and update the sentiment stats
     """
 
     def __init__(self,
@@ -24,11 +26,13 @@ class YtVidScrapingSerialProcessor(IYtVidScrapingProcessor):
                  yt_finder: YtTopVideoFinder,
                  transcript_scraper: IYtTranscriptScraper,
                  sentiment_rater: ISentimentRater,
+                 overwrite_existing_data: bool,
                  ):
         self.repository = repository
         self.yt_finder = yt_finder
         self.transcript_scraper = transcript_scraper
         self.sentiment_rater = sentiment_rater
+        self.overwrite_existing_data = overwrite_existing_data
 
     def process(
             self,
@@ -53,27 +57,40 @@ class YtVidScrapingSerialProcessor(IYtVidScrapingProcessor):
             length_minutes_lower_limit=length_minutes_lower_limit,
         )
 
-        for videos_list in videos_list_generator:
-            for video in videos_list:
-                self._process_video(video)
+        processed = []
 
-    def _process_video(self, video: YtVideo):
-        transcript = self.transcript_scraper.scrape_transcript(video.video_id)
-        video.transcript = transcript
+        for video_batch in videos_list_generator:
+            processed.extend(self._add_videos_to_database(video_batch))
 
-        title_sentiment_rating = self.sentiment_rater.rate(video.title).score
-        transcript_sentiment_rating = self.sentiment_rater.rate(transcript).score
+        transcript_scraped = []
 
-        sentiment_rating = YoutubeVideoSentimentRating(
-            model=self.sentiment_rater.model_name,
-            score_title=title_sentiment_rating,
-            score_transcript=transcript_sentiment_rating,
-        )
+        for video in processed:
+            video.transcript = self.transcript_scraper.scrape_transcript(video.video_id)
+            # after grabbing the transcript, update one by one not to lose progress in case of failure
+            self._update_video(video)
+            transcript_scraped.append(video)
 
-        video.stats.sentiment_rating = sentiment_rating
+        for video in transcript_scraped:
+            video.stats.sentiment_rating.score_title = self.sentiment_rater.rate(video.title)
+            video.stats.sentiment_rating.score_transcript = self.sentiment_rater.rate(video.transcript)
+            self._update_video(video)
 
-        self._save_video(video)
-        logging.log(logging.INFO, f"Video {video.video_id} was processed and saved to the database.")
+    # todo: refactor this to use batch operations
+    def _add_videos_to_database(self, videos: list[YtVideo]):
+        vids = []
+        if self.overwrite_existing_data:
+            for video in videos:
+                self.repository.add_or_update(video)
+            vids = videos
+        else:
+            for video in videos:
+                v = self.repository.get_video(video.video_id)
+                if v:
+                    vids.append(v)
+                else:
+                    self._save_video(video)
+                    vids.append(video)
+        return vids
 
     def _save_video(self, video: YtVideo):
         added = self.repository.add_if_doesnt_exist(video)

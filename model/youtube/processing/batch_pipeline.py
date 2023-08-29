@@ -4,12 +4,12 @@ import logging
 from model.persistence.core import IYtVideoRepository
 from model.sentiment_analysis.core import ISentimentRater
 from model.youtube.core import YtVideo, YoutubeVideoSentimentRating
-from model.youtube.processing.core import IYtVidScrapingProcessor
+from model.youtube.processing.core import IYtVidScrapingPipeline
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import IYtTranscriptScraper
 
 
-class YtVidScrapingBatchProcessor(IYtVidScrapingProcessor):
+class YtVidScrapingBatchPipeline(IYtVidScrapingPipeline):
     """
     This class is responsible for conducting video search on particular topic,
     scraping the video's stats, transcript, and rating the video's sentiment.

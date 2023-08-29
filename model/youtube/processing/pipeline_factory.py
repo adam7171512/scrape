@@ -3,10 +3,10 @@ from model.persistence.core import IYtVideoRepository
 from model.persistence.factory import YtVideoRepositoryFactory
 from model.sentiment_analysis.sentiment_gpt import GptSentimentRater
 from model.sentiment_analysis.sentiment_roberta import RobertaSentimentRater
-from model.youtube.processing.batch_processor import YtVidScrapingBatchProcessor
-from model.youtube.processing.core import IYtVidScrapingProcessor
-from model.youtube.processing.serial_processor import YtVidScrapingSerialProcessor
-from model.youtube.processing.std_processor import YtVidScrapingStdProcessor
+from model.youtube.processing.batch_pipeline import YtVidScrapingBatchPipeline
+from model.youtube.processing.core import IYtVidScrapingPipeline
+from model.youtube.processing.serial_pipeline import YtVidScrapingSerialPipeline
+from model.youtube.processing.std_pipeline import YtVidScrapingStdPipeline
 from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_stats_scraper import YtDlpStatsScraper, YtApiStatsScraper
@@ -18,7 +18,7 @@ scraper_config = get_scraper_config()
 db_config = get_db_config(scraper_config["repository"])
 
 
-def get_scraper_processor() -> IYtVidScrapingProcessor:
+def get_scraper_processor() -> IYtVidScrapingPipeline:
 
     if scraper_config["repository"] == "mongo":
         repository: IYtVideoRepository = YtVideoRepositoryFactory.mongo_repository(
@@ -60,7 +60,7 @@ def get_scraper_processor() -> IYtVidScrapingProcessor:
     yt_finder = YtTopVideoFinder(get_yt_api_keys(), stats_scraper=stats_scraper)
 
     if scraper_config["pipeline"] == "std":
-        return YtVidScrapingStdProcessor(
+        return YtVidScrapingStdPipeline(
             repository,
             yt_finder,
             transcript_scraper,
@@ -68,14 +68,14 @@ def get_scraper_processor() -> IYtVidScrapingProcessor:
             overwrite_existing_data,
         )
     elif scraper_config["pipeline"] == "serial":
-        return YtVidScrapingSerialProcessor(
+        return YtVidScrapingSerialPipeline(
             repository,
             yt_finder,
             transcript_scraper,
             sentiment_rater,
         )
     elif scraper_config["pipeline"] == "batch":
-        return YtVidScrapingBatchProcessor(
+        return YtVidScrapingBatchPipeline(
             repository,
             yt_finder,
             transcript_scraper,
