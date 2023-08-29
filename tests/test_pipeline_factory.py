@@ -1,4 +1,4 @@
-from model.pipeline.pipeline_factory import get_scraper_pipeline
+from model.pipeline.pipeline_factory import get_scraping_pipeline
 from model.pipeline.std_pipeline import YtVidScrapingStdPipeline
 
 
@@ -22,6 +22,6 @@ def test_get_scraper_pipeline():
             "overwrite_existing_data": False,
         }
     }
-    scraping_pipeline = get_scraper_pipeline(config)
+    scraping_pipeline = get_scraping_pipeline(config)
 
     assert isinstance(scraping_pipeline, YtVidScrapingStdPipeline)

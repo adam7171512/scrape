@@ -15,7 +15,7 @@ from model.youtube.yt_transcript_scraper import YtWhisperTranscriptScraper, YtDl
     ComboYtTranscriptScraper
 
 
-def get_scraper_pipeline(config: dict) -> IYtVidScrapingPipeline:
+def get_scraping_pipeline(config: dict) -> IYtVidScrapingPipeline:
     scraper_config = config["scraper"]
     db_config = config["db"]
 
