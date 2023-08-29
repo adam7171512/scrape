@@ -3,7 +3,7 @@ import logging
 
 from model.persistence.core import IYtVideoRepository
 from model.sentiment_analysis.core import ISentimentRater
-from model.youtube.core import YtVideo
+from model.youtube.core import YtVideo, YoutubeVideoSentimentRating
 from model.pipeline.core import IYtVidScrapingPipeline
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import IYtTranscriptScraper
@@ -41,9 +41,9 @@ class YtVidScrapingStdPipeline(IYtVidScrapingPipeline):
             date_end: datetime.date,
             time_delta: int,
             max_results_per_time_delta: int = 10,
-            language: str = None,
+            language: str = "en",
             stats_lower_limit: int | None = None,
-            length_minutes_lower_limit: int | None = None,
+            length_minutes_lower_limit: int = 5,
     ) -> None:
 
         videos_list_generator = self.yt_finder.scrape_top_videos_with_stats(
@@ -53,8 +53,8 @@ class YtVidScrapingStdPipeline(IYtVidScrapingPipeline):
             time_delta=time_delta,
             max_results_per_time_delta=max_results_per_time_delta,
             language=language,
-            stats_lower_limit=stats_lower_limit,
-            length_minutes_lower_limit=length_minutes_lower_limit,
+            min_views=stats_lower_limit,
+            min_video_length=length_minutes_lower_limit,
         )
 
         processed = []
@@ -62,18 +62,17 @@ class YtVidScrapingStdPipeline(IYtVidScrapingPipeline):
         for video_batch in videos_list_generator:
             processed.extend(self._add_videos_to_database(video_batch))
 
+        processed = self._add_videos_to_database(processed)
+
         transcript_scraped = []
 
         for video in processed:
-            video.transcript = self.transcript_scraper.scrape_transcript(video.video_id)
-            # after grabbing the transcript, update one by one not to lose progress in case of failure
-            self._update_video(video)
+
+            self._scrape_transcript(video)
             transcript_scraped.append(video)
 
         for video in transcript_scraped:
-            video.stats.sentiment_rating.score_title = self.sentiment_rater.rate(video.title)
-            video.stats.sentiment_rating.score_transcript = self.sentiment_rater.rate(video.transcript)
-            self._update_video(video)
+            self._rate_sentiment(video)
 
     # todo: refactor this to use batch operations
     def _add_videos_to_database(self, videos: list[YtVideo]):
@@ -103,3 +102,28 @@ class YtVidScrapingStdPipeline(IYtVidScrapingPipeline):
 
         if not updated:
             logging.log(logging.ERROR, f"Video {video.video_id} doesn't exist in the database.")
+
+    def _scrape_transcript(self, video: YtVideo):
+        transcript = video.transcript
+        if transcript is None or self.overwrite_existing_data:
+            transcript = self.transcript_scraper.scrape_transcript(video.video_id)
+
+        video.transcript = transcript
+        self._update_video(video)
+
+    def _rate_sentiment(self, video: YtVideo):
+
+        if video.stats.sentiment_rating and not self.overwrite_existing_data:
+            title_sentiment_rating = video.stats.sentiment_rating.score_title
+            transcript_sentiment_rating = video.stats.sentiment_rating.score_transcript
+        else:
+            title_sentiment_rating = self.sentiment_rater.rate(video.title).score
+            transcript_sentiment_rating = self.sentiment_rater.rate(video.transcript).score if video.transcript else None
+
+        sentiment_rating = YoutubeVideoSentimentRating(
+            model=self.sentiment_rater.model_name,
+            score_title=title_sentiment_rating,
+            score_transcript=transcript_sentiment_rating,
+        )
+        video.stats.sentiment_rating = sentiment_rating
+        self._update_video(video)

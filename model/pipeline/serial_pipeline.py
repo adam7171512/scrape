@@ -37,9 +37,9 @@ class YtVidScrapingSerialPipeline(IYtVidScrapingPipeline):
             date_end: datetime.date,
             time_delta: int,
             max_results_per_time_delta: int = 10,
-            language: str = None,
+            language: str = "en",
             stats_lower_limit: int | None = None,
-            length_minutes_lower_limit: int | None = None,
+            length_minutes_lower_limit: int = 5,
     ) -> None:
 
         videos_list_generator = self.yt_finder.scrape_top_videos_with_stats(
@@ -49,8 +49,8 @@ class YtVidScrapingSerialPipeline(IYtVidScrapingPipeline):
             time_delta=time_delta,
             max_results_per_time_delta=max_results_per_time_delta,
             language=language,
-            stats_lower_limit=stats_lower_limit,
-            length_minutes_lower_limit=length_minutes_lower_limit,
+            min_views=stats_lower_limit,
+            min_video_length=length_minutes_lower_limit,
         )
 
         for videos_list in videos_list_generator:
@@ -62,7 +62,7 @@ class YtVidScrapingSerialPipeline(IYtVidScrapingPipeline):
         video.transcript = transcript
 
         title_sentiment_rating = self.sentiment_rater.rate(video.title).score
-        transcript_sentiment_rating = self.sentiment_rater.rate(transcript).score
+        transcript_sentiment_rating = self.sentiment_rater.rate(transcript).score if video.transcript else None
 
         sentiment_rating = YoutubeVideoSentimentRating(
             model=self.sentiment_rater.model_name,
