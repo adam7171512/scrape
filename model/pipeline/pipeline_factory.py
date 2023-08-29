@@ -14,11 +14,10 @@ from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import YtWhisperTranscriptScraper, YtDlpTranscriptScraper, \
     ComboYtTranscriptScraper
 
-scraper_config = get_scraper_config()
-db_config = get_db_config(scraper_config["repository"])
 
-
-def get_scraper_processor() -> IYtVidScrapingPipeline:
+def get_scraper_processor(config: dict) -> IYtVidScrapingPipeline:
+    scraper_config = config["scraper"]
+    db_config = config["db"]
 
     if scraper_config["repository"] == "mongo":
         repository: IYtVideoRepository = YtVideoRepositoryFactory.mongo_repository(
