@@ -4,12 +4,12 @@ from model.youtube.persistence.core import IYtVideoRepository
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 
 
-class YtScraper:
+class YtDataCollector:
     def __init__(self, repository: IYtVideoRepository, vid_finder: YtTopVideoFinder):
         self.repository = repository
         self.vid_finder = vid_finder
 
-    def scrape(
+    def collect_data(
         self,
         topic: str,
         date_start: datetime.date,

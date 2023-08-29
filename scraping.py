@@ -3,16 +3,16 @@ from datetime import datetime
 import toml
 from pymongo import MongoClient
 
-from model.youtube.yt_data_scraper import YtScraper
+from model.youtube.yt_data_scraper import YtDataCollector
 
 client = MongoClient("mongodb://localhost:27017")
 
 config = toml.load("config.toml")
 API_KEYS = config["api"]["yt_data_api_keys"]
 
-yt_scraper = YtScraper(db_client=client, api_keys=API_KEYS)
+yt_scraper = YtDataCollector(db_client=client, api_keys=API_KEYS)
 
-yt_scraper.scrape(
+yt_scraper.collect_data(
     db_name="youtube",
     collection_name="atom",
     topic="cryptocurrency atom",
