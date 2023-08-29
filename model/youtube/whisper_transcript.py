@@ -2,7 +2,7 @@ import os
 
 import whisper
 
-class WhisperTranscript:
+class WhisperTranscriptExtractor:
     def __init__(self, model: str = "base"):
         self.model = whisper.load_model(model)
 

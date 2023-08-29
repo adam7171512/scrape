@@ -6,7 +6,7 @@ from model.youtube.persistence.factory import YtRepositoryFactory
 from model.youtube.processing.batch_processor import YtVidScrapingBatchProcessor
 from model.youtube.processing.core import IYtVidScrapingProcessor
 from model.youtube.processing.serial_processor import YtVidScrapingSerialProcessor
-from model.youtube.whisper_transcript import WhisperTranscript
+from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_stats_scraper import YtDlpStatsScraper, YtApiStatsScraper
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
@@ -26,7 +26,7 @@ def get_scraper_processor() -> IYtVidScrapingProcessor:
         raise Exception("Invalid repository type")
 
     if scraper_config["transcript_scraper"] == "whisper":
-        whisper = WhisperTranscript()
+        whisper = WhisperTranscriptExtractor()
         transcript_scraper = YtWhisperTranscriptScraper(
             whisper,
             YtAudioDownloader(),

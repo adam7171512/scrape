@@ -1,7 +1,7 @@
 from model.youtube.core import YtVideo, IYtTranscriptScraper
 from model.youtube.persistence.core import IYtVideoRepository
 from model.youtube.persistence.mongo import YtVideoMongoRepository
-from model.youtube.whisper_transcript import WhisperTranscript
+from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_transcript_scraper import (
     YtWhisperTranscriptScraper,
@@ -45,7 +45,7 @@ def create_whisper_transcript_filler(
     db = client[db_name]
     collection = db[collection_name]
     yt_repository = YtVideoMongoRepository(collection)
-    whisper_ = WhisperTranscript(model=model_size)
+    whisper_ = WhisperTranscriptExtractor(model=model_size)
     yt_audio_downloader = YtAudioDownloader(length_min=7)
     transcript_scraper = YtWhisperTranscriptScraper(whisper_, yt_audio_downloader)
     return TranscriptFiller(transcript_scraper, yt_repository)

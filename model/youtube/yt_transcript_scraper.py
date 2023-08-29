@@ -1,13 +1,17 @@
 from typing import Protocol
 
 from model.youtube.core import YtVideo, get_url_for_vid_id, IYtTranscriptScraper
-from model.youtube.whisper_transcript import WhisperTranscript
+from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 
 
 class YtWhisperTranscriptScraper(IYtTranscriptScraper):
+    """
+    Class responsible for extracting video transcript.
+    It depends on the whisper transcript extractor and on audio downloader.
+    """
     def __init__(
-        self, whisper: WhisperTranscript, yt_audio_downloader: YtAudioDownloader
+        self, whisper: WhisperTranscriptExtractor, yt_audio_downloader: YtAudioDownloader
     ):
         self._whisper = whisper
         self._yt_audio_downloader = yt_audio_downloader
@@ -17,7 +21,12 @@ class YtWhisperTranscriptScraper(IYtTranscriptScraper):
 
 
 class YtDlpTranscriptScraper(IYtTranscriptScraper):
-    def __init__(self, include_auto_captions: bool = True):
+    """
+    Class responsible for scraping the video subtitles.
+    Initializer accepts an auto caption toggle.
+    Warning! Sometimes the auto captions are VERY bad and limited
+    """
+    def __init__(self, include_auto_captions: bool = False):
         self._include_auto_captions = include_auto_captions
         import yt_dlp as yt
 
