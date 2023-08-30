@@ -69,6 +69,34 @@ This project is a tool designed to scrape and analyze YouTube content data. Belo
     -   One method uses `yt-dlp` to retrieve available captions on YouTube.
     -   An alternative method uses the OpenAI Whisper model to transcribe segments of the video's audio. This method can handle multiple languages but may take longer.
     - "Combo" method uses both implementations. Firstly it tries to use the "cheap" yt-dlp method, but ignores automatically generated captions, as they are lower quality. When there are no manually added captions, then the Whisper extractor takes over.
+  
+      Example usage :
+    
+    ```python
+    # Yt-dlp scraper
+    yt_dlp_transcript_scraper: IYtTranscriptScraper = YtDlpTranscriptScraper(
+        include_auto_captions=True
+    )
+    transcript = transcript_scraper.scrape_transcript("wiUiL9vw24A")
+    print(transcript[:300])
+    """
+     idiot just vandalized my wife's car plan is simple pretend this match my window so it can go to the
+    """
+
+    # Whisper scraper
+    whisper_scraper: IYtTranscriptScraper = YtWhisperTranscriptScraper(
+        whisper=WhisperTranscriptExtractor(),
+        yt_audio_downloader=YtAudioDownloader(length_min=5),
+    )
+
+    transcript = whisper_scraper.scrape_transcript("wiUiL9vw24A")
+    print(transcript[:300])
+
+    """
+     Some idiot just vandalized my wife's car. The plan is simple. Pretend to smash my wife's window so it can go to the shop. Actually, get that Tesla wrap in her favorite color, Tiffany Blue. Tell her          we're just taking a boys trip, but instead we're actually driving 100 hours to get her car signed by
+    """
+    ```
+
 4.  **Sentiment Rater**:
     
     -   Assesses the sentiment of the video title and its transcript.
