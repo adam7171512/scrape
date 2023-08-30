@@ -102,6 +102,34 @@ This project is a tool designed to scrape and analyze YouTube content data. Belo
     -   Assesses the sentiment of the video title and its transcript.
     -   The first method uses the Roberta model from Hugging Face: [twitter-roberta-base-sentiment](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment).
     -   A second method employs OpenAI GPT, which requires an API key.
+
+      Example usage :
+    
+    ```python
+    # Roberta:
+    roberta_sent_rater: ISentimentRater = RobertaSentimentRater()
+    score = roberta_sent_rater.rate(
+        "Some idiot just vandalized my wife's car. The plan is simple. Pretend to smash my wife's window so it can go to the shop."
+    ).score
+    print(f'Sentiment rating score: {score}')
+    """
+     Sentiment rating score: -0.93
+    """
+
+    # Gpt
+    wgpt_sent_rater: ISentimentRater = GptSentimentRater(
+        config_data_provider.get_open_ai_api_key(),
+    )
+    score = gpt_sent_rater.rate(
+        "Some idiot just vandalized my wife's car. The plan is simple. Pretend to smash my wife's window so it can go to the shop."
+    ).score
+    print(f'Sentiment rating score: {score}')
+
+    """
+     Sentiment rating score: -0.5
+    """
+    ```
+      
 5.  **Persistence**:
     -   Data is stored using a MongoDB repository.
 6.  **Pipeline**:
