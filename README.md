@@ -35,9 +35,9 @@ This project is a tool designed to scrape and analyze YouTube content data. Belo
             print(f'Published at : {vid.date.isoformat()} , views: {vid.stats.views}')
 
     """
-    WARNING:root:Rebuilding the api client, key: AIzaSyDUbZBzqCXmS_cYeicngle-jwlCUd41Mnc. Current key index: 0
+    WARNING:root:Rebuilding the api client, key: AIzaSyDUbZB.... Current key index: 0
     WARNING:root:Switching the api key, as the 0 key quota has been reached
-    WARNING:root:Rebuilding the api client, key: AIzaSyBxPotinbqazTR7WV3A7w6p3Qui9JTmzZY. Current key index: 1
+    WARNING:root:Rebuilding the api client, key: AIzaSyBxPot.... Current key index: 1
     ========== Time search partition number 1==========
     Video number 1 : 100 YouTubers Signed My Tesla!
     Published at : 2023-01-14T15:45:03+00:00 , views: 10079881
