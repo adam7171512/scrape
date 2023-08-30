@@ -1,6 +1,6 @@
 from model.persistence.core import IYtVideoRepository
 from model.sentiment_analysis.core import ISentimentRater
-from model.youtube.core import YtVideo, YoutubeVideoSentimentRating
+from model.youtube.core import YoutubeVideoSentimentRating, YtVideo
 
 
 class SentimentFiller:
@@ -9,17 +9,16 @@ class SentimentFiller:
     """
 
     def __init__(
-            self,
-            yt_sentiment_rater: ISentimentRater,
-            yt_repository: IYtVideoRepository,
-            overwrite_existing_data: bool,
+        self,
+        yt_sentiment_rater: ISentimentRater,
+        yt_repository: IYtVideoRepository,
+        overwrite_existing_data: bool,
     ):
         self.sentiment_rater = yt_sentiment_rater
         self.yt_repository = yt_repository
         self.overwrite_existing_data = overwrite_existing_data
 
     def fill_sentiment(self, video: YtVideo) -> None:
-
         title_sentiment_rating = None
         transcript_sentiment_rating = None
         if video.stats.sentiment_rating and not self.overwrite_existing_data:
@@ -30,7 +29,9 @@ class SentimentFiller:
             title_sentiment_rating = self.sentiment_rater.rate(video.title).score
 
         if video.transcript and transcript_sentiment_rating is None:
-            transcript_sentiment_rating = self.sentiment_rater.rate(video.transcript).score
+            transcript_sentiment_rating = self.sentiment_rater.rate(
+                video.transcript
+            ).score
 
         sentiment_rating = YoutubeVideoSentimentRating(
             model=self.sentiment_rater.model_name,
@@ -47,6 +48,8 @@ class SentimentFiller:
                 self.fill_sentiment(vid)
 
     def _sentiment_data_incomplete(self, video: YtVideo) -> bool:
-        return video.stats.sentiment_rating is None or \
-            video.stats.sentiment_rating.score_title is None or \
-            video.stats.sentiment_rating.score_transcript is None
+        return (
+            video.stats.sentiment_rating is None
+            or video.stats.sentiment_rating.score_title is None
+            or video.stats.sentiment_rating.score_transcript is None
+        )

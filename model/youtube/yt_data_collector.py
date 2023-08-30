@@ -9,11 +9,12 @@ class YtDataCollector:
     """
     Facade-like class responsible for scraping and persisting the data
     """
+
     def __init__(
-            self,
-            repository: IYtVideoRepository,
-            vid_finder: YtTopVideoFinder,
-            transcript_scraper: IYtTranscriptScraper | None = None,
+        self,
+        repository: IYtVideoRepository,
+        vid_finder: YtTopVideoFinder,
+        transcript_scraper: IYtTranscriptScraper | None = None,
     ):
         self.repository = repository
         self.vid_finder = vid_finder
@@ -43,9 +44,10 @@ class YtDataCollector:
 
         for video_batch in vids:
             for video in video_batch:
-
                 if self.transcript_scraper:
-                    transcript = self.transcript_scraper.scrape_transcript(video.video_id)
+                    transcript = self.transcript_scraper.scrape_transcript(
+                        video.video_id
+                    )
                     video.transcript = transcript
 
                 self.repository.add_if_doesnt_exist(video)

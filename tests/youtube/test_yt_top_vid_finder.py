@@ -31,7 +31,7 @@ def test_scrape_top_videos_with_stats_should_yield_list_of_videos_with_stats(yt_
 
 
 def test_scrape_top_videos_when_quota_reached_should_switch_api_keys_then_raise(
-        yt_finder,
+    yt_finder,
 ):
     mock_api_client = mock()
 

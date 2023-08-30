@@ -1,20 +1,19 @@
-from model.persistence.core import IYtVideoRepository
 import pandas as pd
+
 from config_data_provider import get_config
+from model.persistence.core import IYtVideoRepository
 from model.persistence.factory import YtVideoRepositoryFactory
 
 
 class BtcYoutubeSentimentAnalysis:
-
     def __init__(self, repository: IYtVideoRepository, btc_price_csv_path: str):
         self.repository = repository
         self.btc_price_csv_path = btc_price_csv_path
 
     def analyse(self) -> pd.DataFrame:
-
         def weight_decay(age_weeks):
             if age_weeks <= 4:
-                return 0.9 ** age_weeks
+                return 0.9**age_weeks
             else:
                 return 0.6
 
@@ -91,6 +90,7 @@ class BtcYoutubeSentimentAnalysis:
 
     def plot(self):
         import matplotlib.pyplot as plt
+
         df = self.analyse()
 
         fig, ax1 = plt.subplots(figsize=(15, 10))
@@ -118,7 +118,6 @@ class BtcYoutubeSentimentAnalysis:
 def create_btc_price_sentiment_analysis():
     config = get_config()
     repo = YtVideoRepositoryFactory.mongo_repository(
-        config["db"]["db_name"],
-        config["db"]["collection_name"]
+        config["db"]["db_name"], config["db"]["collection_name"]
     )
     return BtcYoutubeSentimentAnalysis(repo, config["misc"]["btc_price_csv_path"])

@@ -10,8 +10,10 @@ def get_binance_monthly_published_data(
     ticker: str, date_within_month: date, ohlc_interval: str = "15m"
 ) -> pd.DataFrame:
     date_str = date_within_month.strftime("%Y-%m")
-    url = f"https://data.binance.vision/data/spot/monthly/klines/{ticker}/" \
-          f"{ohlc_interval}/{ticker}-{ohlc_interval}-{date_str}.zip"
+    url = (
+        f"https://data.binance.vision/data/spot/monthly/klines/{ticker}/"
+        f"{ohlc_interval}/{ticker}-{ohlc_interval}-{date_str}.zip"
+    )
     logging.info(f"getting data from {url}")
     df = pd.read_csv(url, compression="zip", header=0, sep=",", quotechar='"')
     logging.info(f"got data from {url}")
@@ -50,4 +52,3 @@ def get_binance_monthly_for_date_range(
         d += timedelta(days=30)
     logging.info(f"got data for {ticker} from {date_start} to {date_end}")
     return df
-

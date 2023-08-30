@@ -2,8 +2,8 @@ from datetime import datetime
 
 from pymongo.collection import Collection
 
-from model.youtube.core import YtVideo
 from model.persistence.core import IYtVideoRepository
+from model.youtube.core import YtVideo
 
 
 class YtVideoMongoRepository(IYtVideoRepository):
