@@ -135,7 +135,9 @@ This project is a tool designed to scrape and analyze YouTube content data. Belo
 6.  **Pipeline**:
     -   The Pipeline object, represented by the `IYtVidScrapingPipeline` interface, integrates various elements of the system to offer a streamlined unified interface. By supplying the configuration data and employing the pipeline's factory method, you can instantiate the desired pipeline object.
 
-
+      Pipeline objects are initialized using repository, video finder, transcript scraper and sentiment rater.
+    
+                                                    
 As an example, simple sentiment analysis youtube's videos sentiment towards Bitcoin in time, with price overlay:
 
 ![myplot](https://github.com/adam7171512/scrape/assets/117537530/76b928c2-3ca2-458b-af03-e99583ff90fa)
