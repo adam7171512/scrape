@@ -144,10 +144,10 @@ Example usage :
 ```python
     
     yt_topic_tracker = YoutubeTopicTracker(
-    topic="covid",
-    top_vid_finder=model.factories.create_top_video_finder(),
-    transcript_scraper=model.factories.create_transcript_scraper(),
-    report_repository=None,
+        topic="covid",
+        top_vid_finder=model.factories.create_top_video_finder(),
+        transcript_scraper=model.factories.create_transcript_scraper(),
+        report_repository=None,
     )
     
     report = yt_topic_tracker.last_day_report(top_vid_number=3)
