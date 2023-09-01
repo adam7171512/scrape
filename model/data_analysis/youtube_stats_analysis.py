@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 
 from config_data_provider import get_config
@@ -7,6 +8,14 @@ from model.persistence.factory import YtVideoRepositoryFactory
 
 class BtcYoutubeSentimentAnalysis:
 
+    """
+    Please note that this class is a quickly prototyped one without too much thought put into it.
+    Its purpose is to demonstrate types of analysis that can be done on the data using the sentiment and price data,
+    not to be a production-ready solution that could produce meaningful results.
+    To make it better, we should implement a better mechanism for weight change of impact depending
+    on video release date, rethink the parameters for exponential moving averages, and probably
+    assign some positive sentiment impact to videos that have sentiment rating close to 0.
+    """
 
     def __init__(self, repository: IYtVideoRepository, btc_price_csv_path: str):
         self.repository = repository
@@ -91,7 +100,6 @@ class BtcYoutubeSentimentAnalysis:
         return btc_usd
 
     def plot(self):
-        import matplotlib.pyplot as plt
         df = self.analyse()
 
         fig, ax1 = plt.subplots(figsize=(15, 10))
