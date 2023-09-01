@@ -1,7 +1,7 @@
 import datetime
-
 import model.factories
-from model.data_analysis.youtube_stats_analysis import create_btc_price_sentiment_analysis
+from model.data_analysis.youtube_stats_analysis import \
+    create_btc_price_sentiment_analysis
 
 if __name__ == "__main__":
     pipeline = model.factories.create_scraping_pipeline()

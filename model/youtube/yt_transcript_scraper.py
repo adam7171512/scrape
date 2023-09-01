@@ -1,6 +1,7 @@
 from typing import Protocol
 
-from model.youtube.core import YtVideo, get_url_for_vid_id, IYtTranscriptScraper
+from model.youtube.core import (IYtTranscriptScraper, YtVideo,
+                                get_url_for_vid_id)
 from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 
@@ -12,7 +13,9 @@ class YtWhisperTranscriptScraper(IYtTranscriptScraper):
     """
 
     def __init__(
-            self, whisper: WhisperTranscriptExtractor, yt_audio_downloader: YtAudioDownloader
+        self,
+        whisper: WhisperTranscriptExtractor,
+        yt_audio_downloader: YtAudioDownloader,
     ):
         self._whisper = whisper
         self._yt_audio_downloader = yt_audio_downloader
@@ -36,6 +39,7 @@ class YtDlpTranscriptScraper(IYtTranscriptScraper):
 
     def scrape_transcript(self, video_id: str) -> str | None:
         import requests
+
         try:
             url_str = get_url_for_vid_id(video_id)
             info_ = self._yt.extract_info(url_str, download=False)
@@ -53,7 +57,9 @@ class YtDlpTranscriptScraper(IYtTranscriptScraper):
                 for sub in captions:
                     if sub["ext"] == "vtt":
                         response = requests.get(sub["url"], allow_redirects=True)
-                        return self._process_sub_request_response_automatic_captions(response.text)
+                        return self._process_sub_request_response_automatic_captions(
+                            response.text
+                        )
             else:
                 return None
         except Exception as e:
@@ -117,10 +123,14 @@ class ComboYtTranscriptScraper(IYtTranscriptScraper):
     if the captions are not available, then it uses whisper extractor.
     """
 
-    def __init__(self, whisper_model: str = "base", length_min: int = 5, auto_captions: bool = False):
+    def __init__(
+        self,
+        whisper_model: str = "base",
+        length_min: int = 5,
+        auto_captions: bool = False,
+    ):
         self.scraper = YtWhisperTranscriptScraper(
-            WhisperTranscriptExtractor(whisper_model),
-            YtAudioDownloader(length_min)
+            WhisperTranscriptExtractor(whisper_model), YtAudioDownloader(length_min)
         )
 
         self.yt_dlp_scraper = YtDlpTranscriptScraper(auto_captions)

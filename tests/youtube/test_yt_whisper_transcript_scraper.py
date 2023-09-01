@@ -1,7 +1,8 @@
 import datetime
+
 import pytest
 
-from model.youtube.core import YtVideo, IYtTranscriptScraper
+from model.youtube.core import IYtTranscriptScraper, YtVideo
 from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
 from model.youtube.yt_transcript_scraper import YtWhisperTranscriptScraper
@@ -15,7 +16,7 @@ def yt_transcript_scraper() -> IYtTranscriptScraper:
 
 
 def test_scrape_transcript_never_gonna_give_you_up(
-        yt_transcript_scraper,
+    yt_transcript_scraper,
 ):
     rick_id = "dQw4w9WgXcQ"
 

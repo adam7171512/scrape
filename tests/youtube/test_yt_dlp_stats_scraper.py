@@ -1,7 +1,8 @@
 import datetime
+
 import pytest
 
-from model.youtube.core import YtVideo, YtVideoStats, IYtStatsScraper
+from model.youtube.core import IYtStatsScraper, YtVideo, YtVideoStats
 from model.youtube.yt_stats_scraper import YtDlpStatsScraper
 
 
@@ -11,7 +12,7 @@ def yt_stat_scraper() -> IYtStatsScraper:
 
 
 def test_scrape_video_stats_never_gonna_give_you_up_should_return_over_1b_views_2m_comments_3half_length(
-        yt_stat_scraper,
+    yt_stat_scraper,
 ):
     rick_id = "dQw4w9WgXcQ"
     vid = YtVideo(

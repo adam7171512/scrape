@@ -6,7 +6,6 @@ from transformers import (AutoConfig, AutoModelForSequenceClassification,
 from model.sentiment_analysis.core import ISentimentRater, SplitScoreRating
 
 
-
 class FinbertSentimentRater(ISentimentRater):
     """
     Sentiment rater implementation based on FinBert model. Suitable only for short text.

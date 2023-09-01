@@ -47,17 +47,16 @@ class YtVideo(BaseModel):
 
 
 class IYtTopVideoFinder(Protocol):
-
     def scrape_top_videos_with_stats(
-            self,
-            topic: str,
-            date_start: datetime.date,
-            date_end: datetime.date,
-            time_delta: int,
-            max_results_per_time_delta: int = 10,
-            language: str = "en",
-            min_views: int | None = None,
-            min_video_length: int = 5,
+        self,
+        topic: str,
+        date_start: datetime.date,
+        date_end: datetime.date,
+        time_delta: int,
+        max_results_per_time_delta: int = 10,
+        language: str = "en",
+        min_views: int | None = None,
+        min_video_length: int = 5,
     ) -> list[list[YtVideo]]:
         ...
 
@@ -68,6 +67,5 @@ class IYtStatsScraper(Protocol):
 
 
 class IYtTranscriptScraper(Protocol):
-
     def scrape_transcript(self, video_id: str) -> str | None:
         ...

@@ -17,6 +17,7 @@ class YtAudioDownloader:
     Dependencies:
         yt_dlp, ffmpeg
     """
+
     # download audio only
     params = {
         "format": "bestaudio/best",

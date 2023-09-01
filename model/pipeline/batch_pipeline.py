@@ -2,9 +2,10 @@ import datetime
 import logging
 
 from model.persistence.core import IYtVideoRepository
-from model.sentiment_analysis.core import ISentimentRater
-from model.youtube.core import YtVideo, YoutubeVideoSentimentRating, IYtTopVideoFinder
 from model.pipeline.core import IYtVidScrapingPipeline
+from model.sentiment_analysis.core import ISentimentRater
+from model.youtube.core import (IYtTopVideoFinder, YoutubeVideoSentimentRating,
+                                YtVideo)
 from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 from model.youtube.yt_transcript_scraper import IYtTranscriptScraper
 
@@ -19,13 +20,14 @@ class YtVidScrapingBatchPipeline(IYtVidScrapingPipeline):
     is performed on batch of videos (and after each step they get saved/updated in the database).
     """
 
-    def __init__(self,
-                 repository: IYtVideoRepository,
-                 yt_finder: IYtTopVideoFinder,
-                 transcript_scraper: IYtTranscriptScraper,
-                 sentiment_rater: ISentimentRater,
-                 overwrite_existing_data: bool,
-                 ):
+    def __init__(
+        self,
+        repository: IYtVideoRepository,
+        yt_finder: IYtTopVideoFinder,
+        transcript_scraper: IYtTranscriptScraper,
+        sentiment_rater: ISentimentRater,
+        overwrite_existing_data: bool,
+    ):
         self.repository = repository
         self.yt_finder = yt_finder
         self.transcript_scraper = transcript_scraper
@@ -33,17 +35,16 @@ class YtVidScrapingBatchPipeline(IYtVidScrapingPipeline):
         self.overwrite_existing_data = overwrite_existing_data
 
     def process(
-            self,
-            topic: str,
-            date_start: datetime.date,
-            date_end: datetime.date,
-            time_delta: int,
-            max_results_per_time_delta: int = 10,
-            language: str = "en",
-            stats_lower_limit: int | None = None,
-            length_minutes_lower_limit: int = 5,
+        self,
+        topic: str,
+        date_start: datetime.date,
+        date_end: datetime.date,
+        time_delta: int,
+        max_results_per_time_delta: int = 10,
+        language: str = "en",
+        stats_lower_limit: int | None = None,
+        length_minutes_lower_limit: int = 5,
     ) -> None:
-
         videos_list_generator = self.yt_finder.scrape_top_videos_with_stats(
             topic=topic,
             date_start=date_start,
@@ -105,12 +106,16 @@ class YtVidScrapingBatchPipeline(IYtVidScrapingPipeline):
 
             if video.stats.sentiment_rating is not None:
                 title_sentiment_rating = video.stats.sentiment_rating.score_title
-                transcript_sentiment_rating = video.stats.sentiment_rating.score_transcript
+                transcript_sentiment_rating = (
+                    video.stats.sentiment_rating.score_transcript
+                )
 
             if title_sentiment_rating is None:
                 title_sentiment_rating = self.sentiment_rater.rate(video.title).score
             if transcript and transcript_sentiment_rating is None:
-                transcript_sentiment_rating = self.sentiment_rater.rate(transcript).score
+                transcript_sentiment_rating = self.sentiment_rater.rate(
+                    transcript
+                ).score
             elif not transcript:
                 logging.log(logging.ERROR, f"Video {video.video_id} has no transcript.")
 
@@ -126,10 +131,14 @@ class YtVidScrapingBatchPipeline(IYtVidScrapingPipeline):
         added = self.repository.add_if_doesnt_exist(video)
 
         if not added:
-            logging.log(logging.ERROR, f"Video {video.video_id} already exists in the database.")
+            logging.log(
+                logging.ERROR, f"Video {video.video_id} already exists in the database."
+            )
 
     def _update_video(self, video: YtVideo):
         updated = self.repository.update_if_exists(video)
 
         if not updated:
-            logging.log(logging.ERROR, f"Video {video.video_id} doesn't exist in the database.")
+            logging.log(
+                logging.ERROR, f"Video {video.video_id} doesn't exist in the database."
+            )

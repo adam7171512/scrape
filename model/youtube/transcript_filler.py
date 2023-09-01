@@ -1,12 +1,12 @@
 from model.persistence.core import IYtVideoRepository
 from model.persistence.factory import YtVideoRepositoryFactory
 from model.persistence.mongo import YtVideoMongoRepository
-from model.youtube.core import YtVideo, IYtTranscriptScraper
+from model.youtube.core import IYtTranscriptScraper, YtVideo
 from model.youtube.whisper_transcript import WhisperTranscriptExtractor
 from model.youtube.yt_audio_downloader import YtAudioDownloader
-from model.youtube.yt_transcript_scraper import (
-    YtWhisperTranscriptScraper,
-    YtDlpTranscriptScraper, ComboYtTranscriptScraper)
+from model.youtube.yt_transcript_scraper import (ComboYtTranscriptScraper,
+                                                 YtDlpTranscriptScraper,
+                                                 YtWhisperTranscriptScraper)
 
 
 class TranscriptFiller:
@@ -18,9 +18,9 @@ class TranscriptFiller:
     """
 
     def __init__(
-            self,
-            yt_transcript_scraper: IYtTranscriptScraper,
-            yt_repository: IYtVideoRepository,
+        self,
+        yt_transcript_scraper: IYtTranscriptScraper,
+        yt_repository: IYtVideoRepository,
     ):
         self.yt_transcript_scraper = yt_transcript_scraper
         self.yt_repository = yt_repository
@@ -60,4 +60,3 @@ def create_transcript_filler(config: dict):
         raise Exception("Invalid transcript scraper type")
 
     return TranscriptFiller(transcript_scraper, repository)
-

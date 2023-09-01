@@ -1,7 +1,8 @@
 import datetime
+
 import pytest
 
-from model.youtube.core import YtVideo, IYtTranscriptScraper
+from model.youtube.core import IYtTranscriptScraper, YtVideo
 from model.youtube.yt_transcript_scraper import YtDlpTranscriptScraper
 
 
@@ -11,7 +12,7 @@ def yt_transcript_scraper() -> IYtTranscriptScraper:
 
 
 def test_scrape_transcript_never_gonna_give_you_up(
-        yt_transcript_scraper,
+    yt_transcript_scraper,
 ):
     rick_id = "dQw4w9WgXcQ"
     vid = YtVideo(
@@ -25,4 +26,3 @@ def test_scrape_transcript_never_gonna_give_you_up(
 
     # suprisingly, yt does not proper full subs for this vid, auto captions are very limited
     assert "just wanna tell you how I'm feeling" in transcript
-

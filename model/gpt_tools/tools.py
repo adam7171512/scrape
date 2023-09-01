@@ -152,7 +152,9 @@ class GptContact:
     # todo: refactor the truncator so that it checks and counts word by word
     @staticmethod
     def truncate_input(token_limit: int, inp: list[dict]):
-        token_count = sum(GptContact.count_tokens(message['content']) for message in inp)
+        token_count = sum(
+            GptContact.count_tokens(message["content"]) for message in inp
+        )
 
         truncated_input = inp.copy()
         if token_count > token_limit:
@@ -161,7 +163,7 @@ class GptContact:
             i = len(inp) - 1
             while tokens_to_remove > 0:
                 message = truncated_input[i]
-                message_token_count = GptContact.count_tokens(message['content'])
+                message_token_count = GptContact.count_tokens(message["content"])
 
                 if message_token_count <= tokens_to_remove:
                     truncated_input.pop(i)
@@ -169,14 +171,15 @@ class GptContact:
                     i -= 1
                 else:
                     ratio = tokens_to_remove / message_token_count
-                    message['content'] = message['content'][:int(len(message['content']) * ratio) - 10]
-                    new_message_token_count = GptContact.count_tokens(message['content'])
-                    tokens_to_remove -= (message_token_count - new_message_token_count)
+                    message["content"] = message["content"][
+                        : int(len(message["content"]) * ratio) - 10
+                    ]
+                    new_message_token_count = GptContact.count_tokens(
+                        message["content"]
+                    )
+                    tokens_to_remove -= message_token_count - new_message_token_count
 
         return truncated_input
-
-
-
 
     @staticmethod
     def get_insertion_completion(

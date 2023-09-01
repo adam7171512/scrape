@@ -4,18 +4,19 @@ from typing import Any, Generator
 
 from googleapiclient.discovery import build
 
-from model.youtube.core import IYtStatsScraper, YtVideo, YtVideoStats, IYtTopVideoFinder
+from model.youtube.core import (IYtStatsScraper, IYtTopVideoFinder, YtVideo,
+                                YtVideoStats)
 from model.youtube.yt_stats_scraper import YtApiStatsScraper
 
 
 class YtTopVideoFinder(IYtTopVideoFinder):
     """
-       A class that finds top yt videos and their stats for specified parameters.
-       Class handles multiple yt data api keys and after exhausting quota jumps to next one.
+    A class that finds top yt videos and their stats for specified parameters.
+    Class handles multiple yt data api keys and after exhausting quota jumps to next one.
 
-       Initializer accepts list of api keys and optional stats scraper dependency.
-       If stats scraper is not provided, it creates the stats scraper using yt data api, using keys
-       """
+    Initializer accepts list of api keys and optional stats scraper dependency.
+    If stats scraper is not provided, it creates the stats scraper using yt data api, using keys
+    """
 
     # Todo: remove the key handling responsibility from this class
 
@@ -48,15 +49,15 @@ class YtTopVideoFinder(IYtTopVideoFinder):
         )
 
     def scrape_top_videos_with_stats(
-            self,
-            topic: str,
-            date_start: datetime.date,
-            date_end: datetime.date,
-            time_delta: int,
-            max_results_per_time_delta: int = 10,
-            language: str = None,
-            min_video_length: int = 5,
-            min_views: int | None = None,
+        self,
+        topic: str,
+        date_start: datetime.date,
+        date_end: datetime.date,
+        time_delta: int,
+        max_results_per_time_delta: int = 10,
+        language: str = None,
+        min_video_length: int = 5,
+        min_views: int | None = None,
     ) -> Generator[list[YtVideo], None, None]:
         """
         Returns a generator of lists of videos, where each list is the top videos for a given time delta
@@ -114,7 +115,10 @@ class YtTopVideoFinder(IYtTopVideoFinder):
                         meets_criteria = stats.views and stats.views >= min_views
 
                     if min_video_length:
-                        meets_criteria = stats.length_minutes and stats.length_minutes >= min_video_length
+                        meets_criteria = (
+                            stats.length_minutes
+                            and stats.length_minutes >= min_video_length
+                        )
 
                     if meets_criteria:
                         vid.stats = stats

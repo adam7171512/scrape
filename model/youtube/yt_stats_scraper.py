@@ -1,6 +1,7 @@
 import re
 
-from model.youtube.core import IYtStatsScraper, YtVideoStats, get_url_for_vid_id
+from model.youtube.core import (IYtStatsScraper, YtVideoStats,
+                                get_url_for_vid_id)
 
 
 class YtApiStatsScraper(IYtStatsScraper):
@@ -9,7 +10,6 @@ class YtApiStatsScraper(IYtStatsScraper):
         self._key_manager = None
 
     def scrape_stats(self, video_id: str) -> YtVideoStats:
-
         if self._yt_client is None:
             raise Exception("YtApiStatsScraper: yt_client is not set")
 
@@ -54,6 +54,7 @@ class YtApiStatsScraper(IYtStatsScraper):
 class YtDlpStatsScraper(IYtStatsScraper):
     def __init__(self):
         import yt_dlp as yt
+
         self._yt = yt.YoutubeDL()
 
     def scrape_stats(self, video_id: str) -> YtVideoStats:
@@ -70,5 +71,5 @@ class YtDlpStatsScraper(IYtStatsScraper):
             views=view_count,
             comments=comments,
             likes=likes,
-            length_minutes=length_minutes
+            length_minutes=length_minutes,
         )
