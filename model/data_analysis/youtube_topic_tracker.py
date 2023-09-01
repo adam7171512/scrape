@@ -17,12 +17,22 @@ class TopicReport(BaseModel):
 
 
 class IReportRepository(Protocol):
+    """
+    Basic Interface outline for saving and retrieving reports
+    """
 
     def save_report(self, report: TopicReport) -> None:
         ...
 
+    def get_report(self, topic: str, date_start: datetime.date, date_end: datetime.date) -> TopicReport | None:
+        ...
+
 
 class GptTopicReporter:
+    """
+    This class is responsible for generating a report about a topic, based on a list of videos.
+    It uses transcript scraper to scrape the video's transcripts, and GPT to generate the report.
+    """
 
     def __init__(
             self,
