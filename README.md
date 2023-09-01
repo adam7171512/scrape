@@ -136,9 +136,41 @@ This project is a tool designed to scrape and analyze YouTube content data. Belo
     -   The Pipeline object, represented by the `IYtVidScrapingPipeline` interface, integrates various elements of the system to offer a streamlined unified interface. By supplying the configuration data and employing the pipeline's factory method, you can instantiate the desired pipeline object.
 
       Pipeline objects are initialized using repository, video finder, transcript scraper and sentiment rater.
+7.  **Youtube topic tracker**:
+    -  A tool that could be used for searching, scraping video transcripts from videos and generating a summary using GPT
     
-                                                    
-As an example, simple sentiment analysis youtube's videos sentiment towards Bitcoin in time, with price overlay:
+Example usage :
+    
+```python
+    
+    yt_topic_tracker = YoutubeTopicTracker(
+    topic="covid",
+    top_vid_finder=model.factories.create_top_video_finder(),
+    transcript_scraper=model.factories.create_transcript_scraper(),
+    report_repository=None,
+    )
+    
+    report = yt_topic_tracker.last_day_report(top_vid_number=3)
+    print(report.report)
+    
+        """
+    After analyzing the transcripts and data from three YouTube videos discussing the topic of COVID-19, several key themes and perspectives emerge. 
+
+    The first video features Robert F. Kennedy Jr. discussing a potential 2024 presidential run, reparations, the COVID-19 vaccine, and science. The conversation seems to be a general discussion about his political views and aspirations, with COVID-19 being one of the many topics discussed. The video has garnered 75,757 views, indicating a significant interest in Kennedy's views on these topics.
+
+    The second video, which is in Vietnamese, appears to be a profile of a woman who has played a significant role in the global response to the COVID-19 pandemic. The video has 60,723 views, suggesting that there is a considerable interest in stories of individuals making a difference during the pandemic.
+
+    The third video features a critique of the left-wing response to COVID-19, with the speaker accusing them of fear-mongering about new variants and using the pandemic to justify lockdowns, censorship, and political payoffs. This video has 31,946 views, indicating that there is a substantial audience for this perspective as well.
+
+    In conclusion, the discourse around COVID-19 on YouTube is diverse, with different perspectives represented and significant interest in each. The pandemic continues to be a topic of global concern and discussion, with debates about political responses, individual contributions, and the future implications of the virus.
+
+    Sentiment: -0.1. The sentiment is slightly negative due to the ongoing concerns and debates about the COVID-19 pandemic.
+
+        """
+
+```
+                                                
+As an example of using the pipeline to collect data, extract sentiment and produce analysis of youtube's videos sentiment towards Bitcoin in time, with price overlay:
 
 ![myplot](https://github.com/adam7171512/scrape/assets/117537530/76b928c2-3ca2-458b-af03-e99583ff90fa)
 
