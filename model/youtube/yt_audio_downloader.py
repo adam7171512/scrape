@@ -31,7 +31,7 @@ class YtAudioDownloader:
         ],
     }
 
-    def __init__(self, length_min: int = None):
+    def __init__(self, length_min: int = 5):
         self._length_min = length_min
         self._ytdl = yt.YoutubeDL(self.params)
         self._downloaded_files = []

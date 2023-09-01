@@ -40,7 +40,11 @@ def create_top_video_finder() -> IYtTopVideoFinder:
     stats_scraper = create_stats_scraper()
     from model.youtube.yt_top_vid_finder import YtTopVideoFinder
 
+<<<<<<< Updated upstream
     api_keys = get_yt_api_keys()
+=======
+    api_keys = config["api"]["yt_data_api_keys"]
+>>>>>>> Stashed changes
     return YtTopVideoFinder(api_keys, stats_scraper=stats_scraper)
 
 
